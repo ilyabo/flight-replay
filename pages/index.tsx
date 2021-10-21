@@ -11,10 +11,14 @@ const Home: NextPage = () => {
   useEffect(() => {
     (async () => {
       setData(
-        await Promise.all([
-          fetchIgc('./data/2020-07-31-XCT-OLE-01.igc'),
-          fetchIgc('./data/2020-07-31-XTR-5E023E5C6A4C-01.igc'),
-        ])
+        await Promise.all(
+          [
+            './data/2020-07-31-XCT-OLE-01.igc',
+            './data/2020-07-31-XTR-5E023E5C6A4C-01.igc',
+            './data/2020-07-31_11.04_Grindelwald.igc',
+            './data/IGC9iAfDM.igc',
+          ].map(fetchIgc)
+        )
       );
     })();
   }, []);
