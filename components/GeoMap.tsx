@@ -1,39 +1,57 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
-import ReactMapGL, {
-  MapContext,
-  Marker,
-  NavigationControl,
-  ScaleControl,
-  StaticMap,
-} from 'react-map-gl';
+import { MapContext, StaticMap } from 'react-map-gl';
 // import 'mapbox-gl/dist/mapbox-gl.css';
 import { useRouter } from 'next/router';
-import IGCParser from 'igc-parser';
 import DeckGL from '@deck.gl/react';
-import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
 import { TripsLayer } from '@deck.gl/geo-layers';
-import { MapView } from '@deck.gl/core';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
+import { MapView, LightingEffect } from '@deck.gl/core';
 import { MovementTrace, TrajPoint } from '../types';
-import { SliderFilledTrack, SliderThumb, SliderTrack, Box, Slider, VStack } from '@chakra-ui/react';
+import { Box, Slider, SliderFilledTrack, SliderThumb, SliderTrack, VStack } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
-import { max, min } from 'd3-array';
+import { bisectRight, max, min } from 'd3-array';
 import { format } from 'date-fns';
+import { AmbientLight, PointLight, DirectionalLight } from '@deck.gl/core';
 
 export interface Props {
   data: MovementTrace[];
 }
+// create ambient light source
+const ambientLight = new AmbientLight({
+  color: [255, 255, 255],
+  intensity: 5.0,
+});
+// create point light source
+const pointLight = new PointLight({
+  color: [255, 255, 255],
+  intensity: 1.0,
+  // use coordinate system as the same as view state
+  position: [-125, 50.5, 5000],
+});
+// create directional light source
+const directionalLight = new DirectionalLight({
+  color: [255, 255, 255],
+  intensity: 10.0,
+  direction: [3, -9, -1],
+});
 
-export const MIN_ZOOM = 0;
-export const MAX_ZOOM = 18;
+const lightingEffect = new LightingEffect({
+  ambientLight,
+  pointLight,
+  directionalLight,
+});
+
+// export const MIN_ZOOM = 0;
+// export const MAX_ZOOM = 18;
 
 const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 const MAPBOX_STYLE = process.env.NEXT_PUBLIC_MAPBOX_STYLE;
 const INITIAL_VIEWPORT = {
-  latitude: 46.49711872308324,
-  longitude: 7.911217525691257,
-  zoom: 11.202341726765956,
-  bearing: 158.20868644067795,
-  pitch: 69.40550159456775,
+  latitude: 46.619538195143576,
+  longitude: 7.917705406762233,
+  zoom: 10.325604071743175,
+  bearing: 6.888974902216397,
+  pitch: 53.263484661216,
   altitude: 1.5,
   maxZoom: 20,
   minZoom: 0,
@@ -41,6 +59,9 @@ const INITIAL_VIEWPORT = {
   minPitch: 0,
 };
 
+const angleX = 0;
+const angleY = 0;
+const angleZ = 90;
 const NAV_CONTROLS_STYLE = {
   right: 10,
   top: 10,
@@ -137,6 +158,7 @@ const GeoMap: FC<Props> = ({ data }) => {
   }, [map]);
 
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
+  console.log(viewport);
   const layers = [
     new TripsLayer({
       id: 'trips-layer',
@@ -145,7 +167,7 @@ const GeoMap: FC<Props> = ({ data }) => {
       // deduct start timestamp from each data point to avoid overflow
       getTimestamps: (d: MovementTrace) =>
         d.timestamps.map((t) => t - timeScale.domain()[0].getTime()),
-      getColor: (d: TrajPoint[], i: number) => [253, 128, 93],
+      getColor: (d: MovementTrace) => [253, 128, 93],
       opacity: 1,
       widthMinPixels: 5,
       jointRounded: true,
@@ -171,6 +193,45 @@ const GeoMap: FC<Props> = ({ data }) => {
     //   radiusScale: 1,
     //   radiusUnits: 'pixels',
     // }),
+
+    new ScenegraphLayer({
+      id: `scenegraph`,
+      data,
+      // fetch: fetchGltf,
+      // scenegraph: './data/1357 Hang Glider.gltf',
+      scenegraph: './data/hang-glider/scene.gltf',
+      sizeScale: 3,
+      // getPosition: (d: MovementTrace) => d.path[0],
+      getPosition: ({ timestamps, path }: MovementTrace) => {
+        const idx = bisectRight(timestamps, currentTime.getTime());
+        if (idx < 1 || idx > path.length - 1) {
+          // TODO: better way to hide the objects
+          return [0, 0, -10000];
+        }
+        return path[idx];
+      },
+      // getOrientation: (d: MovementTrace) => [0, 0, 90],
+      getOrientation: ({ timestamps, path }: MovementTrace) => {
+        const idx = bisectRight(timestamps, currentTime.getTime());
+        const yaw = idx < path.length - 1 ? getYaw(path[idx], path[idx + 1]) : 0;
+        const pitch = idx < path.length - 1 ? getPitch(path[idx], path[idx + 1]) + 90 : 0;
+        // const pitch = 0;
+        return [angleX + pitch, angleY + yaw, angleZ];
+      },
+
+      _lighting: 'pbr',
+      getColor: [253, 128, 93],
+      updateTriggers: {
+        getOrientation: {
+          currentTime,
+          angleX,
+          angleY,
+          angleZ,
+        },
+        getColor: { currentTime },
+        getPosition: { currentTime },
+      },
+    }),
   ];
 
   // return (
@@ -200,6 +261,7 @@ const GeoMap: FC<Props> = ({ data }) => {
   };
   return (
     <DeckGL
+      effects={[lightingEffect]}
       // initialViewState={INITIAL_VIEWPORT}
       // controller={true}
       views={
@@ -221,10 +283,10 @@ const GeoMap: FC<Props> = ({ data }) => {
           step={0.1}
           onChange={handleMoveTimeSlider}
         >
-          <SliderTrack bg="red.100">
+          <SliderTrack bg="tomato">
             <SliderFilledTrack bg="tomato" />
           </SliderTrack>
-          <SliderThumb boxSize={6}>
+          <SliderThumb boxSize={4} bg="tomato">
             <Box color="tomato" position="relative" top={7} whiteSpace="nowrap" fontSize={10}>
               <VStack textAlign="center" spacing={0}>
                 <span>{format(currentTime, 'HH:mm:ss')}</span>
@@ -253,3 +315,21 @@ const GeoMapWithMapContext: FC<Props> = (props) => {
 };
 
 export default GeoMapWithMapContext;
+
+function getYaw(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
+  const dx = nextPoint[0] - prevPoint[0];
+  const dy = nextPoint[1] - prevPoint[1];
+  return radiansToDegrees(Math.atan2(dy, dx));
+}
+
+function getPitch(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
+  // https://stackoverflow.com/questions/18184848/calculate-pitch-and-yaw-between-two-unknown-points
+  const dx = nextPoint[0] - prevPoint[0];
+  const dy = nextPoint[1] - prevPoint[1];
+  const dz = nextPoint[2] - prevPoint[2];
+  return radiansToDegrees(Math.atan2(Math.sqrt(dz * dz + dx * dx), dy) + Math.PI);
+}
+
+function radiansToDegrees(x: number) {
+  return (x * 180) / Math.PI;
+}

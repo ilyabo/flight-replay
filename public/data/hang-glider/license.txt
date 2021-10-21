@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hang Glider
+* source:	https://sketchfab.com/3d-models/hang-glider-64b8974f71f84283bef27f9ab66df9e6
+* author:	neutralize (https://sketchfab.com/neutralize)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hang Glider" (https://sketchfab.com/3d-models/hang-glider-64b8974f71f84283bef27f9ab66df9e6) by neutralize (https://sketchfab.com/neutralize) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

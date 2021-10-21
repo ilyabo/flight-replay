@@ -4,15 +4,15 @@ import styles from '../styles/Home.module.css';
 import GeoMap from '../components/GeoMap';
 import { useEffect, useState } from 'react';
 import fetchIgc from '../lib/fetchIgc';
-import { TrajPoint } from '../types';
+import { MovementTrace } from '../types';
 
 const Home: NextPage = () => {
-  const [data, setData] = useState<TrajPoint[][]>();
+  const [data, setData] = useState<MovementTrace[]>();
   useEffect(() => {
     (async () => {
       setData(
         await Promise.all([
-          // fetchIgc('./data/2020-07-31-XCT-OLE-01.igc'),
+          fetchIgc('./data/2020-07-31-XCT-OLE-01.igc'),
           fetchIgc('./data/2020-07-31-XTR-5E023E5C6A4C-01.igc'),
         ])
       );
