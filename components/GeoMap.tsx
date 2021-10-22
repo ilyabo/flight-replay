@@ -172,7 +172,7 @@ const GeoMap: FC<Props> = ({ data }) => {
   };
   useLayoutEffect(() => {
     if (followMode) {
-      const getPosition = getPositionGetter(currentTime);
+      const getPosition = getPositionGetter(currentTime, 100);
       const position = getPosition(data[0]);
       if (position[0] || position[1]) {
         setViewport({
@@ -525,7 +525,7 @@ function getTimeOffset(currentTime: Date, timestamps: number[], idx: number) {
   return (currentTime.getTime() - timestamps[idx - 1]) / (timestamps[idx] - timestamps[idx - 1]);
 }
 
-function getPositionGetter(currentTime: Date) {
+function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
   return ({ timestamps, path }: MovementTrace) => {
     const idx = bisectRight(timestamps, currentTime.getTime());
     if (idx < 1 || idx > path.length - 1) {
@@ -533,6 +533,19 @@ function getPositionGetter(currentTime: Date) {
       return [0, 0, -10000];
     }
     // return path[idx];
-    return interpolateArray(path[idx - 1], path[idx])(getTimeOffset(currentTime, timestamps, idx));
+    const timeOff = getTimeOffset(currentTime, timestamps, idx);
+    if (runningAverageSteps > 0) {
+      return interpolateArray(
+        [
+          runningAverage(path, idx - 1, (d) => d[0], runningAverageSteps),
+          runningAverage(path, idx - 1, (d) => d[1], runningAverageSteps),
+        ],
+        [
+          runningAverage(path, idx, (d) => d[0], runningAverageSteps),
+          runningAverage(path, idx, (d) => d[1], runningAverageSteps),
+        ]
+      )(timeOff);
+    }
+    return interpolateArray(path[idx - 1], path[idx])(timeOff);
   };
 }
