@@ -158,7 +158,6 @@ const GeoMap: FC<Props> = ({ data }) => {
   }, [map]);
 
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
-  console.log(viewport);
   const layers = [
     new TripsLayer({
       id: 'trips-layer',
@@ -170,11 +169,11 @@ const GeoMap: FC<Props> = ({ data }) => {
       getColor: (d: MovementTrace) => [253, 128, 93],
       opacity: 1,
       widthMinPixels: 5,
-      jointRounded: true,
+      // jointRounded: true,
       // capRounded: true,
-      // fadeTrail: false,
-      fadeTrail: true,
-      trailLength: 200000,
+      fadeTrail: false,
+      // fadeTrail: true,
+      // trailLength: 200000,
       currentTime: currentTime.getTime() - timeScale.domain()[0].getTime(),
     }),
     // new ScatterplotLayer({
@@ -260,43 +259,60 @@ const GeoMap: FC<Props> = ({ data }) => {
     setCurrentTime(timeScale.invert(val));
   };
   return (
-    <DeckGL
-      effects={[lightingEffect]}
-      // initialViewState={INITIAL_VIEWPORT}
-      // controller={true}
-      views={
-        new MapView({
-          controller: { doubleClickZoom: false, inertia: true, keyboard: false },
-        })
-      }
-      layers={layers}
-      viewState={viewport}
-      onViewStateChange={({ viewState }: any) => setViewport(viewState)}
-    >
-      <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={MAPBOX_STYLE} />
-      {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
-      <Box position="absolute" bottom={10} bg="#fff" left={20} right={20} pt={1} pb={8} px={50}>
+    <VStack width="100%" height="100%">
+      <Box
+        width="100%"
+        // position="absolute"
+        // top={2}
+        opacity={0.95}
+        bg="#fff"
+        // left={2}
+        // right={2}
+        pb={0}
+        pt={5}
+        px={7}
+        borderRadius={10}
+      >
         <Slider
           value={timeScale(currentTime)}
           min={0}
           max={100}
-          step={0.1}
+          step={0.02}
           onChange={handleMoveTimeSlider}
         >
           <SliderTrack bg="tomato">
             <SliderFilledTrack bg="tomato" />
           </SliderTrack>
           <SliderThumb boxSize={4} bg="tomato">
-            <Box color="tomato" position="relative" top={7} whiteSpace="nowrap" fontSize={10}>
-              <VStack textAlign="center" spacing={0}>
-                <span>{format(currentTime, 'HH:mm:ss')}</span>
-                <span>{format(currentTime, 'yyyy-MM-dd')}</span>
-              </VStack>
+            <Box color="tomato" position="relative" bottom={5} whiteSpace="nowrap" fontSize={10}>
+              {/*<VStack textAlign="center" spacing={0}>*/}
+              {/*  <span>{format(currentTime, 'HH:mm:ss')}</span>*/}
+              {/*  <span>{format(currentTime, 'yyyy-MM-dd')}</span>*/}
+              {/*</VStack>*/}
+              <span>{format(currentTime, 'HH:mm:ss')}</span>
             </Box>
           </SliderThumb>
         </Slider>
       </Box>
-    </DeckGL>
+      <Box position="relative" width="100%" height="100%">
+        <DeckGL
+          effects={[lightingEffect]}
+          // initialViewState={INITIAL_VIEWPORT}
+          // controller={true}
+          views={
+            new MapView({
+              controller: { doubleClickZoom: false, inertia: true, keyboard: false },
+            })
+          }
+          layers={layers}
+          viewState={viewport}
+          onViewStateChange={({ viewState }: any) => setViewport(viewState)}
+        >
+          <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={MAPBOX_STYLE} />
+          {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
+        </DeckGL>
+      </Box>
+    </VStack>
   );
 };
 
