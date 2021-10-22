@@ -84,7 +84,7 @@ const INITIAL_VIEWPORT = {
   latitude: 46.55529900866382,
   longitude: 7.838572814324716,
   zoom: 11.082359799464955,
-  bearing: 6.513974902216397,
+  bearing: 88.5452249022164,
   pitch: 0,
   altitude: 1.5,
   maxZoom: 20,
