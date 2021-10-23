@@ -51,6 +51,9 @@ import {
   runningAverage,
 } from '../lib/orientation';
 import { utcFormat } from 'd3-time-format';
+import isMobile from 'ismobilejs';
+
+const IS_MOBILE = isMobile(window.navigator)?.any;
 
 const formatTimeDiff = utcFormat('%H:%M:%S');
 export interface Props {
@@ -109,7 +112,10 @@ const angleZ = 90;
 const FlightMap: FC<Props> = ({ data }) => {
   const { map } = React.useContext(MapContext);
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
+  const [showTrail, setShowTrail] = useState(!IS_MOBILE);
+  const [fadeTrail, setFadeTrail] = useState(true);
   const [followMode, setFollowMode] = useState(true);
+  const [satelliteImagery, setSatelliteImagery] = useState(true);
 
   const timeScale = useMemo(() => {
     return scaleTime()
@@ -270,41 +276,47 @@ const FlightMap: FC<Props> = ({ data }) => {
     }
   }, [map]);
 
-  const layers = [
-    new TripsLayer({
-      id: 'trips-layer',
-      data: data,
-      getPath: (d: MovementTrace) => d.path,
-      // deduct start timestamp from each data point to avoid overflow
-      getTimestamps: (d: MovementTrace) =>
-        d.timestamps.map((t) => t - timeScale.domain()[0].getTime()),
-      getColor: (d: MovementTrace) => [253, 128, 93],
-      opacity: 1,
-      widthMinPixels: 5,
-      jointRounded: true,
-      // capRounded: true,
-      // fadeTrail: false,
-      fadeTrail: true,
-      trailLength: 200000,
-      currentTime: currentTime.getTime() - timeScale.domain()[0].getTime(),
-    }),
-    // new ScatterplotLayer({
-    //   id: 'scatterplot-layer',
-    //   data: data[0],
-    //   // pickable: true,
-    //   opacity: 1,
-    //   stroked: false,
-    //   filled: true,
-    //   // lineWidthMinPixels: 1,
-    //   getPosition: (d: TrajPoint) => [d.lon, d.lat, d.alt],
-    //   getFillColor: [255, 140, 0],
-    //   getLineColor: [0, 0, 0],
-    //   billboard: true,
-    //   getRadius: 2,
-    //   radiusScale: 1,
-    //   radiusUnits: 'pixels',
-    // }),
+  const layers = [];
+  if (showTrail) {
+    layers.push(
+      new TripsLayer({
+        id: 'trips-layer',
+        data: data,
+        getPath: (d: MovementTrace) => d.path,
+        // deduct start timestamp from each data point to avoid overflow
+        getTimestamps: (d: MovementTrace) =>
+          d.timestamps.map((t) => t - timeScale.domain()[0].getTime()),
+        getColor: (d: MovementTrace) => [253, 128, 93],
+        opacity: 1,
+        widthMinPixels: 5,
+        jointRounded: true,
+        // capRounded: true,
+        // fadeTrail: false,
+        fadeTrail,
+        trailLength: 200000,
+        currentTime: currentTime.getTime() - timeScale.domain()[0].getTime(),
+      })
+    );
+  }
 
+  // new ScatterplotLayer({
+  //   id: 'scatterplot-layer',
+  //   data: data[0],
+  //   // pickable: true,
+  //   opacity: 1,
+  //   stroked: false,
+  //   filled: true,
+  //   // lineWidthMinPixels: 1,
+  //   getPosition: (d: TrajPoint) => [d.lon, d.lat, d.alt],
+  //   getFillColor: [255, 140, 0],
+  //   getLineColor: [0, 0, 0],
+  //   billboard: true,
+  //   getRadius: 2,
+  //   radiusScale: 1,
+  //   radiusUnits: 'pixels',
+  // }),
+
+  layers.push(
     new ScenegraphLayer({
       id: `scenegraph`,
       data,
@@ -352,11 +364,21 @@ const FlightMap: FC<Props> = ({ data }) => {
         getColor: { currentTime },
         getPosition: { currentTime },
       },
-    }),
-  ];
+    })
+  );
+
+  const handleChangeShowTrail = (evt: SyntheticEvent) => {
+    setShowTrail((evt.target as HTMLInputElement).checked);
+  };
+
+  const handleChangeFadeTrail = (evt: SyntheticEvent) =>
+    setFadeTrail((evt.target as HTMLInputElement).checked);
 
   const handleChangeFollowMode = (evt: SyntheticEvent) =>
     setFollowMode((evt.target as HTMLInputElement).checked);
+
+  const handleChangeSatelliteImagery = (evt: SyntheticEvent) =>
+    setSatelliteImagery((evt.target as HTMLInputElement).checked);
 
   return (
     <>
@@ -374,7 +396,10 @@ const FlightMap: FC<Props> = ({ data }) => {
           viewState={viewport}
           onViewStateChange={({ viewState }: any) => setViewport(viewState)}
         >
-          <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={MAPBOX_STYLE} />
+          <StaticMap
+            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+            mapStyle={satelliteImagery ? MAPBOX_STYLE : undefined}
+          />
           {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
         </DeckGL>
       </Box>
@@ -463,28 +488,84 @@ const FlightMap: FC<Props> = ({ data }) => {
                   <PopoverArrow />
                   <PopoverCloseButton />
                   <PopoverBody px={6} py={4}>
-                    {/*<Grid templateColumns="min-content 1fr" gap={2} alignItems="center">*/}
-                    {/*  <Switch size="sm" />*/}
-                    {/*  <Text>Follow mode</Text>*/}
-                    {/*</Grid>*/}
-                    <FormControl display="flex" alignItems="center">
-                      <Switch
-                        id="follow-mode-switch"
-                        size="sm"
-                        colorScheme="gray"
-                        isChecked={followMode}
-                        onChange={handleChangeFollowMode}
-                      />
-                      <FormLabel
-                        htmlFor="follow-mode-switch"
-                        ml={2}
-                        mb={0}
-                        fontSize="xs"
-                        cursor="pointer"
-                      >
-                        Follow mode
-                      </FormLabel>
-                    </FormControl>
+                    <VStack spacing={2}>
+                      <HStack spacing={2} w="100%">
+                        <FormControl display="flex" alignItems="center">
+                          <Switch
+                            id="show-trail-switch"
+                            size="sm"
+                            colorScheme="gray"
+                            isChecked={showTrail}
+                            onChange={handleChangeShowTrail}
+                          />
+                          <FormLabel
+                            htmlFor="show-trail-switch"
+                            ml={2}
+                            mb={0}
+                            fontSize="xs"
+                            cursor="pointer"
+                          >
+                            Show trail
+                          </FormLabel>
+                        </FormControl>
+                        {showTrail ? (
+                          <FormControl display="flex" alignItems="center">
+                            <Switch
+                              id="fade-trail-switch"
+                              size="sm"
+                              colorScheme="gray"
+                              isChecked={fadeTrail}
+                              onChange={handleChangeFadeTrail}
+                            />
+                            <FormLabel
+                              htmlFor="fade-trail-switch"
+                              ml={2}
+                              mb={0}
+                              fontSize="xs"
+                              cursor="pointer"
+                            >
+                              Fade trail
+                            </FormLabel>
+                          </FormControl>
+                        ) : null}
+                      </HStack>
+                      <FormControl display="flex" alignItems="center">
+                        <Switch
+                          id="follow-mode-switch"
+                          size="sm"
+                          colorScheme="gray"
+                          isChecked={followMode}
+                          onChange={handleChangeFollowMode}
+                        />
+                        <FormLabel
+                          htmlFor="follow-mode-switch"
+                          ml={2}
+                          mb={0}
+                          fontSize="xs"
+                          cursor="pointer"
+                        >
+                          Follow mode
+                        </FormLabel>
+                      </FormControl>
+                      <FormControl display="flex" alignItems="center">
+                        <Switch
+                          id="satellite-imagery-switch"
+                          size="sm"
+                          colorScheme="gray"
+                          isChecked={satelliteImagery}
+                          onChange={handleChangeSatelliteImagery}
+                        />
+                        <FormLabel
+                          htmlFor="satellite-imagery-switch"
+                          ml={2}
+                          mb={0}
+                          fontSize="xs"
+                          cursor="pointer"
+                        >
+                          Satellite imagery
+                        </FormLabel>
+                      </FormControl>
+                    </VStack>
                   </PopoverBody>
                 </PopoverContent>
               </Portal>
