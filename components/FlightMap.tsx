@@ -15,12 +15,11 @@ import DeckGL from '@deck.gl/react';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { AmbientLight, DirectionalLight, LightingEffect, MapView, PointLight } from '@deck.gl/core';
-import { MovementTrace, TrajPoint } from '../types';
+import { MovementTrace } from '../types';
 import { FaCog, FaPause, FaPlay } from 'react-icons/fa';
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormLabel,
   Grid,
@@ -41,16 +40,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
-import { bisectRight, max, min } from 'd3-array';
-import { interpolateArray } from 'd3-interpolate';
-import {
-  getPitch,
-  getPositionGetter,
-  getOrientationGetter,
-  getTimeOffset,
-  getYaw,
-  runningAverage,
-} from '../lib/orientation';
+import { max, min } from 'd3-array';
+import { getOrientationGetter, getPositionGetter } from '../lib/orientation';
 import { utcFormat } from 'd3-time-format';
 import isMobile from 'ismobilejs';
 
@@ -198,7 +189,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           // bearing: 0,
           bearing: (currentTime.getTime() / 50000) % 360,
           altitude: 10,
-          zoom: 13 + Math.sin(currentTime.getTime() / 1000000),
+          zoom: 13 + Math.sin(currentTime.getTime() / 1000000) / 2,
         });
       }
     }
@@ -377,6 +368,16 @@ const FlightMap: FC<Props> = ({ data }) => {
           />
           {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
         </DeckGL>
+      </Box>
+      <Box position="absolute" top={1} right={1} borderRadius={10} bg="#fff" p={2}>
+        <Grid templateColumns="min-content 60px">
+          <Text fontSize="xs" whiteSpace="nowrap">
+            Pressure altitude:
+          </Text>
+          <Text alignSelf="center" justifySelf="end" fontSize="xs">{`${Math.round(
+            getPositionGetter(currentTime)(data[0])[2]
+          )} m`}</Text>
+        </Grid>
       </Box>
       <Box
         position="absolute"

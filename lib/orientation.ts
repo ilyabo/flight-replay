@@ -2,13 +2,22 @@ import { MovementTrace, TrajPoint } from '../types';
 import { bisectRight } from 'd3-array';
 import { interpolateArray } from 'd3-interpolate';
 
+const angleX = 90;
+const angleY = 0;
+const angleZ = 90;
+
 export function getYaw(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
   const dx = nextPoint[0] - prevPoint[0];
   const dy = nextPoint[1] - prevPoint[1];
+  // if (dx < 1e-10 || dy < 1e-10) return NaN;
   return radiansToDegrees(Math.atan2(dy, dx));
 }
 
 export function getPitch(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
+  if (nextPoint[2] === 0 && prevPoint[2] === 0) {
+    // some datasets have no altitude => this should prevent erratic pitch changes
+    return -90;
+  }
   // https://stackoverflow.com/questions/18184848/calculate-pitch-and-yaw-between-two-unknown-points
   const dx = nextPoint[0] - prevPoint[0];
   const dy = nextPoint[1] - prevPoint[1];
@@ -32,11 +41,22 @@ export function runningAverage(
   for (let i = 1; i < steps; i++) {
     const prevIdx = idx + 1 - i;
     const nextIdx = idx + 1;
+
+    // const nextIdx = idx + 1 - i + 1;
+    // const prevIdx = idx + 1 - i;
     if (0 <= prevIdx && prevIdx < arr.length && 0 <= nextIdx && nextIdx < arr.length) {
-      sum += f(arr[prevIdx], arr[nextIdx]);
+      // console.log(`prevIdx=${prevIdx} nextIdx=${nextIdx}`);
+      const v = f(arr[prevIdx], arr[nextIdx]);
+      sum += v;
+      // if (isFinite(v)) {
+      //   sum += v;
+      //   cnt++;
+      // }
     }
     cnt++;
   }
+  // console.log(cnt, steps, sum, nextIdx);
+  // return cnt > 0 ? sum / cnt : 0;
   return sum / cnt;
 }
 
@@ -45,10 +65,6 @@ export function getTimeOffset(currentTime: Date, timestamps: number[], idx: numb
 }
 
 export function getOrientationGetter(currentTime: Date, runningAverageSteps = 10) {
-  const angleX = 90;
-  const angleY = 0;
-  const angleZ = 90;
-
   return ({ timestamps, path }: MovementTrace) => {
     const idx = bisectRight(timestamps, currentTime.getTime());
     if (idx < 1 || idx > path.length - 1) return [angleX - 90, angleY, angleZ];
@@ -57,6 +73,7 @@ export function getOrientationGetter(currentTime: Date, runningAverageSteps = 10
     // // const yaw = runningAverage(path, idx, getYaw);
     // // const pitch = runningAverage(path, idx, getPitch);
     // return [angleX + pitch, angleY + yaw, angleZ];
+    // console.log(path[idx].map((x, i) => path[idx - 1][i] - x));
 
     const timeOff = getTimeOffset(currentTime, timestamps, idx);
     const angles = interpolateArray(
@@ -89,10 +106,12 @@ export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
         [
           runningAverage(path, idx - 1, (d) => d[0], runningAverageSteps),
           runningAverage(path, idx - 1, (d) => d[1], runningAverageSteps),
+          runningAverage(path, idx - 1, (d) => d[2], runningAverageSteps),
         ],
         [
           runningAverage(path, idx, (d) => d[0], runningAverageSteps),
           runningAverage(path, idx, (d) => d[1], runningAverageSteps),
+          runningAverage(path, idx, (d) => d[2], runningAverageSteps),
         ]
       )(timeOff);
     }

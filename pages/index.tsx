@@ -24,7 +24,7 @@ const Home: NextPage = () => {
           <VStack spacing={5}>
             <Heading size="md">Example flights</Heading>
             <Grid
-              templateColumns="1.5fr 2fr min-content min-content"
+              templateColumns="2fr 2fr min-content min-content"
               gap={3}
               alignItems="center"
               cursor="pointer"
@@ -35,8 +35,14 @@ const Home: NextPage = () => {
                   <Link href={`/flight/${d.id}`}>
                     <Box role="group" display="contents">
                       <Text _groupHover={{ textDecoration: 'underline' }}>{d.pilot}</Text>
-                      <Text _groupHover={{ textDecoration: 'underline' }}>{d.location}</Text>
-                      <Text _groupHover={{ textDecoration: 'underline' }} whiteSpace="nowrap">
+                      <Text _groupHover={{ textDecoration: 'underline' }} fontSize="xs">
+                        {d.location}
+                      </Text>
+                      <Text
+                        _groupHover={{ textDecoration: 'underline' }}
+                        whiteSpace="nowrap"
+                        fontSize="xs"
+                      >
                         {d.date}
                       </Text>
                     </Box>
