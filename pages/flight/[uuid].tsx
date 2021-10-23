@@ -2,9 +2,18 @@ import { MovementTrace } from '../../types';
 import { FC, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import FlightMap from '../../components/FlightMap';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex, Spinner } from '@chakra-ui/react';
+import { css, Global } from '@emotion/react';
 
 export interface Props {}
+
+const globalStyles = css`
+  body {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+`;
 
 async function fetchMovementTrace(uuid: string): Promise<MovementTrace> {
   const response = await fetch(`/api/load-flight?id=${uuid}`);
@@ -27,9 +36,16 @@ const Uuid: FC<Props> = (props) => {
     })();
   }, [uuids]);
   return (
-    <Box position="absolute" top={0} left={0} w="100vw" height="100vh">
-      {data ? <FlightMap data={data} /> : 'Loading…'}
-    </Box>
+    <>
+      <Global styles={globalStyles} />
+      {data ? (
+        <FlightMap data={data} />
+      ) : (
+        <Flex height="100vh" alignItems="center" justifyContent="center">
+          <Spinner color="tomato" />
+        </Flex>
+      )}
+    </>
   );
 };
 

@@ -8,7 +8,7 @@ import fetchIgc from '../lib/fetchIgc';
 import { MovementTrace } from '../types';
 import { Box, Heading, VStack } from '@chakra-ui/react';
 import examples from '../examples.json';
-import screenshot from '../public/screenshot.png';
+import screenshot from '../public/screenshot-sm.jpg';
 
 const Home: NextPage = () => {
   // const [data, setData] = useState<MovementTrace[]>();
@@ -37,7 +37,7 @@ const Home: NextPage = () => {
       <Box maxW="7xl" margin="auto" padding={10}>
         <VStack spacing={10}>
           <Heading size="xl">Flight Replay</Heading>
-          <Box position="relative" maxWidth="100%" h={[300, 400, 500]} w={[400, 600, 750]}>
+          <Box position="relative" maxWidth="100%" h={[200, 300, 400]} w={[300, 400, 500]}>
             <Image
               src={screenshot}
               layout="fill"

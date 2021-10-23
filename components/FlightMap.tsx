@@ -20,6 +20,7 @@ import { FaCog, FaPause, FaPlay } from 'react-icons/fa';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Grid,
@@ -43,6 +44,13 @@ import { scaleTime } from 'd3-scale';
 import { bisectRight, max, min } from 'd3-array';
 import { format } from 'date-fns';
 import { interpolateArray } from 'd3-interpolate';
+import {
+  getPitch,
+  getPositionGetter,
+  getTimeOffset,
+  getYaw,
+  runningAverage,
+} from '../lib/orientation';
 
 export interface Props {
   data: MovementTrace[];
@@ -181,7 +189,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           latitude: position[1],
           pitch: 30,
           altitude: 10,
-          zoom: 13,
+          zoom: 12,
         });
       }
     }
@@ -350,8 +358,38 @@ const FlightMap: FC<Props> = ({ data }) => {
     setFollowMode((evt.target as HTMLInputElement).checked);
 
   return (
-    <VStack width="100%" height="100%">
-      <Box width="100%" opacity={0.95} bg="#fff" pb={0} pt={5} px={7} borderRadius={10}>
+    <>
+      <Box>
+        <DeckGL
+          effects={[lightingEffect]}
+          // initialViewState={INITIAL_VIEWPORT}
+          // controller={true}
+          views={
+            new MapView({
+              controller: { doubleClickZoom: false, inertia: true, keyboard: false },
+            })
+          }
+          layers={layers}
+          viewState={viewport}
+          onViewStateChange={({ viewState }: any) => setViewport(viewState)}
+        >
+          <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={MAPBOX_STYLE} />
+          {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
+        </DeckGL>
+      </Box>
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        width="100vw"
+        opacity={0.975}
+        bg="#fff"
+        pb={1}
+        pt={3}
+        px={5}
+        // borderRadius={10}
+        // zIndex={100}
+      >
         <HStack spacing={5}>
           <Button variant="ghost" color="tomato" onClick={handleTogglePlaying}>
             {playing ? <FaPause /> : <FaPlay />}
@@ -445,25 +483,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           </Box>
         </HStack>
       </Box>
-      <Box position="relative" width="100%" height="100%">
-        <DeckGL
-          effects={[lightingEffect]}
-          // initialViewState={INITIAL_VIEWPORT}
-          // controller={true}
-          views={
-            new MapView({
-              controller: { doubleClickZoom: false, inertia: true, keyboard: false },
-            })
-          }
-          layers={layers}
-          viewState={viewport}
-          onViewStateChange={({ viewState }: any) => setViewport(viewState)}
-        >
-          <StaticMap mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} mapStyle={MAPBOX_STYLE} />
-          {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
-        </DeckGL>
-      </Box>
-    </VStack>
+    </>
   );
 };
 
@@ -482,70 +502,3 @@ const FlightMapWithMapContext: FC<Props> = (props) => {
 };
 
 export default FlightMapWithMapContext;
-
-function getYaw(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
-  const dx = nextPoint[0] - prevPoint[0];
-  const dy = nextPoint[1] - prevPoint[1];
-  return radiansToDegrees(Math.atan2(dy, dx));
-}
-
-function getPitch(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
-  // https://stackoverflow.com/questions/18184848/calculate-pitch-and-yaw-between-two-unknown-points
-  const dx = nextPoint[0] - prevPoint[0];
-  const dy = nextPoint[1] - prevPoint[1];
-  const dz = nextPoint[2] - prevPoint[2];
-  return radiansToDegrees(Math.atan2(Math.sqrt(dz * dz + dx * dx), dy) + Math.PI);
-}
-
-function radiansToDegrees(x: number) {
-  let rv = (x * 180) / Math.PI;
-  return rv;
-}
-
-function runningAverage(
-  arr: TrajPoint[],
-  idx: number,
-  f: (p1: [number, number, number], p2: [number, number, number]) => number,
-  steps = 10
-) {
-  let sum = 0,
-    cnt = 0;
-  for (let i = 1; i < steps; i++) {
-    const prevIdx = idx + 1 - i;
-    const nextIdx = idx + 1;
-    if (0 <= prevIdx && prevIdx < arr.length && 0 <= nextIdx && nextIdx < arr.length) {
-      sum += f(arr[prevIdx], arr[nextIdx]);
-    }
-    cnt++;
-  }
-  return sum / cnt;
-}
-
-function getTimeOffset(currentTime: Date, timestamps: number[], idx: number) {
-  return (currentTime.getTime() - timestamps[idx - 1]) / (timestamps[idx] - timestamps[idx - 1]);
-}
-
-function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
-  return ({ timestamps, path }: MovementTrace) => {
-    const idx = bisectRight(timestamps, currentTime.getTime());
-    if (idx < 1 || idx > path.length - 1) {
-      // TODO: better way to hide the objects
-      return [0, 0, -10000];
-    }
-    // return path[idx];
-    const timeOff = getTimeOffset(currentTime, timestamps, idx);
-    if (runningAverageSteps > 0) {
-      return interpolateArray(
-        [
-          runningAverage(path, idx - 1, (d) => d[0], runningAverageSteps),
-          runningAverage(path, idx - 1, (d) => d[1], runningAverageSteps),
-        ],
-        [
-          runningAverage(path, idx, (d) => d[0], runningAverageSteps),
-          runningAverage(path, idx, (d) => d[1], runningAverageSteps),
-        ]
-      )(timeOff);
-    }
-    return interpolateArray(path[idx - 1], path[idx])(timeOff);
-  };
-}
