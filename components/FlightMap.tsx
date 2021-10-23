@@ -185,11 +185,11 @@ const FlightMap: FC<Props> = ({ data }) => {
           ...viewport,
           longitude: position[0],
           latitude: position[1],
-          pitch: 30,
+          pitch: 30 + Math.sin(currentTime.getTime() / 1000000) * 10,
           // bearing: 0,
-          bearing: (currentTime.getTime() / 50000) % 360,
-          altitude: 10,
-          zoom: 13 + Math.sin(currentTime.getTime() / 1000000) / 2,
+          // bearing: ((currentTime.getTime() / 50000) % 360) - 180,
+          bearing: Math.sin(currentTime.getTime() / 1000000) * 180,
+          zoom: 12.5 + Math.sin(currentTime.getTime() / 1000000) / 2,
         });
       }
     }
@@ -346,6 +346,7 @@ const FlightMap: FC<Props> = ({ data }) => {
   const handleChangeSatelliteImagery = (evt: SyntheticEvent) =>
     setSatelliteImagery((evt.target as HTMLInputElement).checked);
 
+  console.log(viewport.bearing);
   return (
     <>
       <Box>
