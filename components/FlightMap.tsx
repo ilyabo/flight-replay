@@ -42,7 +42,6 @@ import {
 } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
 import { bisectRight, max, min } from 'd3-array';
-import { format } from 'date-fns';
 import { interpolateArray } from 'd3-interpolate';
 import {
   getPitch,
@@ -51,7 +50,9 @@ import {
   getYaw,
   runningAverage,
 } from '../lib/orientation';
+import { utcFormat } from 'd3-time-format';
 
+const formatTimeDiff = utcFormat('%H:%M:%S');
 export interface Props {
   data: MovementTrace[];
 }
@@ -411,7 +412,15 @@ const FlightMap: FC<Props> = ({ data }) => {
                 {/*  <span>{format(currentTime, 'HH:mm:ss')}</span>*/}
                 {/*  <span>{format(currentTime, 'yyyy-MM-dd')}</span>*/}
                 {/*</VStack>*/}
-                <span>{format(currentTime, 'HH:mm:ss')}</span>
+                <span>
+                  {formatTimeDiff(
+                    new Date(currentTime.getTime() - timeScale.domain()[0].getTime())
+                  )}
+                  {/*{format(*/}
+                  {/*  currentTime.getTime() - timeScale.domain()[0].getTime() - 1000 * 60 * 60,*/}
+                  {/*  'HH:mm:ss'*/}
+                  {/*)}*/}
+                </span>
               </Box>
             </SliderThumb>
           </Slider>
