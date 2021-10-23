@@ -391,8 +391,8 @@ const FlightMap: FC<Props> = ({ data }) => {
         // zIndex={100}
       >
         <HStack spacing={5}>
-          <Button variant="ghost" color="tomato" onClick={handleTogglePlaying}>
-            {playing ? <FaPause /> : <FaPlay />}
+          <Button variant="ghost" size="lg" color="tomato" onClick={handleTogglePlaying}>
+            {playing ? <FaPause size={25} /> : <FaPlay size={25} />}
           </Button>
           <Slider
             value={timeScale(currentTime)}

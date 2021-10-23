@@ -4,6 +4,31 @@
     "pilot": "Peter Braden",
     "location": "Grindelwald, Switzerland",
     "date": "2020-07-31",
-    "igcUrl": "https://storage.googleapis.com/flight-replay/2020-07-31-XTR-5E023E5C6A4C-01.igc"
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2020-07-31-XTR-5E023E5C6A4C-01.igc",
+    "source": "https://www.xcontest.org/2020/world/en/flights/detail:peterbraden/31.07.2020/11:32"
+  },
+  {
+    "id": "f646b181-8128-4148-be97-094298a5aa4c",
+    "pilot": "Oleg Ryjkov",
+    "location": "Grindelwald, Switzerland",
+    "date": "2020-07-31",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2020-07-31-XCT-OLE-01.igc",
+    "source": "https://www.xcontest.org/2020/world/en/flights/detail:olegr/31.07.2020/11:16"
+  },
+  {
+    "id": "77a94ad0-05bf-48e5-abf6-f972771ee4f7",
+    "pilot": "Rolf von Arx",
+    "location": "Grindelwald, Switzerland",
+    "date": "2020-07-31",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2020-07-31_11.04_Grindelwald.igc",
+    "source": "https://www.xcontest.org/2020/world/en/flights/detail:raven/31.07.2020/09:04"
+  },
+  {
+    "id": "77f4813a-1ed9-40f4-a837-fcdd653ab6b6",
+    "pilot": "Lode Spruyt",
+    "location": "Grindelwald, Switzerland",
+    "date": "2020-07-31",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/IGC9iAfDM.igc",
+    "source": "https://www.xcontest.org/2020/world/en/flights/detail:lode_spruyt/31.07.2020/09:08"
   }
 ]
