@@ -97,7 +97,7 @@ const angleX = 90;
 const angleY = 0;
 const angleZ = 90;
 
-const GeoMap: FC<Props> = ({ data }) => {
+const FlightMap: FC<Props> = ({ data }) => {
   const { map } = React.useContext(MapContext);
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
   const [followMode, setFollowMode] = useState(true);
@@ -301,7 +301,7 @@ const GeoMap: FC<Props> = ({ data }) => {
       data,
       // fetch: fetchGltf,
       // scenegraph: './data/1357 Hang Glider.gltf',
-      scenegraph: './data/hang-glider/scene.gltf',
+      scenegraph: '/data/hang-glider/scene.gltf',
       sizeScale: 3,
       // getPosition: (d: MovementTrace) => d.path[0],
       getPosition: getPositionGetter(currentTime),
@@ -467,12 +467,12 @@ const GeoMap: FC<Props> = ({ data }) => {
   );
 };
 
-const GeoMapWithMapContext: FC<Props> = (props) => {
+const FlightMapWithMapContext: FC<Props> = (props) => {
   const { locale } = useRouter();
   return (
     // @ts-ignore
     <MapContext.Provider>
-      <GeoMap
+      <FlightMap
         // make sure we fully re-render when locale changes
         key={locale}
         {...props}
@@ -481,7 +481,7 @@ const GeoMapWithMapContext: FC<Props> = (props) => {
   );
 };
 
-export default GeoMapWithMapContext;
+export default FlightMapWithMapContext;
 
 function getYaw(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
   const dx = nextPoint[0] - prevPoint[0];

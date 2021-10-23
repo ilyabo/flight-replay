@@ -1,5 +1,5 @@
 import IGCParser from 'igc-parser';
-import { MovementTrace, TrajPoint } from '../types';
+import { MovementTrace } from '../types';
 import { ascending } from 'd3-array';
 
 export default async function fetchIgc(url: string): Promise<MovementTrace> {
