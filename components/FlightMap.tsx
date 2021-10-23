@@ -46,6 +46,7 @@ import { interpolateArray } from 'd3-interpolate';
 import {
   getPitch,
   getPositionGetter,
+  getOrientationGetter,
   getTimeOffset,
   getYaw,
   runningAverage,
@@ -104,10 +105,6 @@ const INITIAL_VIEWPORT = {
   maxPitch: 80,
   minPitch: 0,
 };
-
-const angleX = 90;
-const angleY = 0;
-const angleZ = 90;
 
 const FlightMap: FC<Props> = ({ data }) => {
   const { map } = React.useContext(MapContext);
@@ -188,15 +185,20 @@ const FlightMap: FC<Props> = ({ data }) => {
   useLayoutEffect(() => {
     if (followMode) {
       const getPosition = getPositionGetter(currentTime, 100);
+      // const getOrientation = getOrientationGetter(currentTime, 10000);
       const position = getPosition(data[0]);
+      // const orientation = getOrientation(data[0]);
+      // console.log(orientation[1]);
       if (position[0] || position[1]) {
         setViewport({
           ...viewport,
           longitude: position[0],
           latitude: position[1],
           pitch: 30,
+          // bearing: 0,
+          bearing: (currentTime.getTime() / 50000) % 360,
           altitude: 10,
-          zoom: 12,
+          zoom: 13 + Math.sin(currentTime.getTime() / 1000000),
         });
       }
     }
@@ -327,39 +329,12 @@ const FlightMap: FC<Props> = ({ data }) => {
       // getPosition: (d: MovementTrace) => d.path[0],
       getPosition: getPositionGetter(currentTime),
       // getOrientation: (d: MovementTrace) => [0, 0, 90],
-      getOrientation: ({ timestamps, path }: MovementTrace) => {
-        const idx = bisectRight(timestamps, currentTime.getTime());
-        if (idx < 1 || idx > path.length - 1) return [angleX - 90, angleY, angleZ];
-        // const pitch = idx < path.length - 1 ? getPitch(path[idx], path[idx + 1]) : 0;
-        // const yaw = idx < path.length - 1 ? getYaw(path[idx], path[idx + 1]) : 0;
-        // // const yaw = runningAverage(path, idx, getYaw);
-        // // const pitch = runningAverage(path, idx, getPitch);
-        // return [angleX + pitch, angleY + yaw, angleZ];
-
-        const timeOff = getTimeOffset(currentTime, timestamps, idx);
-        const angles = interpolateArray(
-          [
-            angleX + runningAverage(path, idx - 1, getPitch),
-            angleY + runningAverage(path, idx - 1, getYaw),
-            angleZ,
-          ],
-          [
-            angleX + runningAverage(path, idx, getPitch),
-            angleY + runningAverage(path, idx, getYaw),
-            angleZ,
-          ]
-        )(timeOff);
-        return angles;
-      },
-
+      getOrientation: getOrientationGetter(currentTime),
       _lighting: 'pbr',
       getColor: [253, 128, 93],
       updateTriggers: {
         getOrientation: {
           currentTime,
-          angleX,
-          angleY,
-          angleZ,
         },
         getColor: { currentTime },
         getPosition: { currentTime },

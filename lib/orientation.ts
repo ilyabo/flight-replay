@@ -44,6 +44,37 @@ export function getTimeOffset(currentTime: Date, timestamps: number[], idx: numb
   return (currentTime.getTime() - timestamps[idx - 1]) / (timestamps[idx] - timestamps[idx - 1]);
 }
 
+export function getOrientationGetter(currentTime: Date, runningAverageSteps = 10) {
+  const angleX = 90;
+  const angleY = 0;
+  const angleZ = 90;
+
+  return ({ timestamps, path }: MovementTrace) => {
+    const idx = bisectRight(timestamps, currentTime.getTime());
+    if (idx < 1 || idx > path.length - 1) return [angleX - 90, angleY, angleZ];
+    // const pitch = idx < path.length - 1 ? getPitch(path[idx], path[idx + 1]) : 0;
+    // const yaw = idx < path.length - 1 ? getYaw(path[idx], path[idx + 1]) : 0;
+    // // const yaw = runningAverage(path, idx, getYaw);
+    // // const pitch = runningAverage(path, idx, getPitch);
+    // return [angleX + pitch, angleY + yaw, angleZ];
+
+    const timeOff = getTimeOffset(currentTime, timestamps, idx);
+    const angles = interpolateArray(
+      [
+        angleX + runningAverage(path, idx - 1, getPitch, runningAverageSteps),
+        angleY + runningAverage(path, idx - 1, getYaw, runningAverageSteps),
+        angleZ,
+      ],
+      [
+        angleX + runningAverage(path, idx, getPitch, runningAverageSteps),
+        angleY + runningAverage(path, idx, getYaw, runningAverageSteps),
+        angleZ,
+      ]
+    )(timeOff);
+    return angles;
+  };
+}
+
 export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
   return ({ timestamps, path }: MovementTrace) => {
     const idx = bisectRight(timestamps, currentTime.getTime());
