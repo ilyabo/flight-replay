@@ -97,7 +97,7 @@ export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
     const idx = bisectRight(timestamps, currentTime.getTime());
     if (idx < 1 || idx > path.length - 1) {
       // TODO: better way to hide the objects
-      return [0, 0, -10000];
+      // return [0, 0, -10000];
     }
     // return path[idx];
     const timeOff = getTimeOffset(currentTime, timestamps, idx);

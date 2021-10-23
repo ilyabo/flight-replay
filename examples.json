@@ -32,12 +32,28 @@
     "source": "https://www.xcontest.org/2020/world/en/flights/detail:lode_spruyt/31.07.2020/09:08"
   },
   {
+    "id": "9e196d4f-5012-478d-afb5-4131c00f551a",
+    "pilot": "Jorge Rodriguez",
+    "location": "Tenerife, Spain",
+    "date": "2021-10-23",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2021-10-23_11-40.igc",
+    "source": "https://www.xcontest.org/world/en/flights/detail:Xurxo/23.10.2021/11:40"
+  },
+  {
     "id": "7726500c-ef1c-4edd-bcf2-524bcfacaf99",
     "pilot": "Sebastian Benz",
     "location": "Caico, Brasil",
     "date": "2021-10-20",
     "igcUrl": "https://storage.googleapis.com/flight-replay/2021-10-20-XCT-SBE-01.igc",
     "source": "https://www.xcontest.org/world/en/flights/detail:osimo/20.10.2021/09:48"
+  },
+  {
+    "id": "ca8b0a2b-eb84-4965-85ae-0e29c15a5424",
+    "pilot": "Edoardo Colombo",
+    "location": "Sardegna, Italy",
+    "date": "2021-10-23",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2021-10-23-XFH-000-01.IGC",
+    "source": "https://www.xcontest.org/world/en/flights/detail:Edo.colombo/23.10.2021/11:20"
   },
   {
     "id": "0b680e7d-93ee-43c4-b3c0-d110bb8d7afc",
