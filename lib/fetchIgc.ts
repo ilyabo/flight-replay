@@ -11,10 +11,10 @@ export default async function fetchIgc(url: string): Promise<MovementTrace> {
 
 function prepareIgcForTripsLayer(data: IGCParser.IGCFile): MovementTrace {
   const traj = data.fixes
-    .map(({ latitude, longitude, timestamp, pressureAltitude }) => ({
+    .map(({ latitude, longitude, timestamp, pressureAltitude, gpsAltitude }) => ({
       lat: latitude,
       lon: longitude,
-      alt: pressureAltitude || 0,
+      alt: pressureAltitude || gpsAltitude || 0,
       timestamp,
     }))
     .sort((a, b) => ascending(a.timestamp, b.timestamp));

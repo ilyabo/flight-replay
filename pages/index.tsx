@@ -32,7 +32,7 @@ const Home: NextPage = () => {
             >
               {examples.map((d, i) => (
                 <Box key={i} display="contents">
-                  <Link href={`/flight/${d.id}`}>
+                  <a href={`/flight/${d.id}`} style={{ display: 'contents' }}>
                     <Box role="group" display="contents">
                       <Text _groupHover={{ textDecoration: 'underline' }}>{d.pilot}</Text>
                       <Text _groupHover={{ textDecoration: 'underline' }} fontSize="xs">
@@ -46,7 +46,7 @@ const Home: NextPage = () => {
                         {d.date}
                       </Text>
                     </Box>
-                  </Link>
+                  </a>
                   <Text whiteSpace="nowrap" fontSize="xs">
                     <a href={d.source} target="_blank">
                       [Source]

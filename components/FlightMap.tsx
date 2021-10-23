@@ -84,11 +84,11 @@ const ANIMATION_SPEEDS = [
 ];
 const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 const MAPBOX_STYLE = process.env.NEXT_PUBLIC_MAPBOX_STYLE;
-const INITIAL_VIEWPORT = {
-  latitude: 46.55529900866382,
-  longitude: 7.838572814324716,
-  zoom: 11.082359799464955,
-  bearing: 88.5452249022164,
+const INITIAL_VIEWPORT: any = {
+  // latitude: 46.55529900866382,
+  // longitude: 7.838572814324716,
+  // zoom: 11.082359799464955,
+  bearing: 90,
   pitch: 0,
   altitude: 1.5,
   maxZoom: 20,
@@ -103,6 +103,7 @@ const FlightMap: FC<Props> = ({ data }) => {
   const [showTrail, setShowTrail] = useState(!IS_MOBILE);
   const [fadeTrail, setFadeTrail] = useState(true);
   const [followMode, setFollowMode] = useState(true);
+  const [cinematicEffects, setCinematicEffects] = useState(true);
   const [satelliteImagery, setSatelliteImagery] = useState(true);
 
   const timeScale = useMemo(() => {
@@ -185,11 +186,11 @@ const FlightMap: FC<Props> = ({ data }) => {
           ...viewport,
           longitude: position[0],
           latitude: position[1],
-          pitch: 30 + Math.sin(currentTime.getTime() / 1000000) * 10,
+          pitch: 40 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) * 20 : 0),
           // bearing: 0,
           // bearing: ((currentTime.getTime() / 50000) % 360) - 180,
-          bearing: Math.sin(currentTime.getTime() / 1000000) * 180,
-          zoom: 12.5 + Math.sin(currentTime.getTime() / 1000000) / 2,
+          bearing: cinematicEffects ? Math.sin(currentTime.getTime() / 2000000) * 180 : 0,
+          zoom: 12.5 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) / 2 : 0),
         });
       }
     }
@@ -343,10 +344,12 @@ const FlightMap: FC<Props> = ({ data }) => {
   const handleChangeFollowMode = (evt: SyntheticEvent) =>
     setFollowMode((evt.target as HTMLInputElement).checked);
 
+  const handleChangeCinematicEffects = (evt: SyntheticEvent) =>
+    setCinematicEffects((evt.target as HTMLInputElement).checked);
+
   const handleChangeSatelliteImagery = (evt: SyntheticEvent) =>
     setSatelliteImagery((evt.target as HTMLInputElement).checked);
 
-  console.log(viewport.bearing);
   return (
     <>
       <Box>
@@ -373,7 +376,7 @@ const FlightMap: FC<Props> = ({ data }) => {
       <Box position="absolute" top={1} right={1} borderRadius={10} bg="#fff" p={2}>
         <Grid templateColumns="min-content 60px">
           <Text fontSize="xs" whiteSpace="nowrap">
-            Pressure altitude:
+            Altitude:
           </Text>
           <Text alignSelf="center" justifySelf="end" fontSize="xs">{`${Math.round(
             getPositionGetter(currentTime)(data[0])[2]
@@ -449,7 +452,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           <Box pl={2}>
             <Popover
               // initialFocusRef={initialFocusRef}
-              placement="bottom-end"
+              placement="top-end"
               closeOnBlur={true}
             >
               <PopoverTrigger>
@@ -458,7 +461,7 @@ const FlightMap: FC<Props> = ({ data }) => {
                 </Button>
               </PopoverTrigger>
               <Portal>
-                <PopoverContent>
+                <PopoverContent w={350}>
                   {/*<PopoverHeader fontWeight="bold" fontSize="sm">*/}
                   {/*  Settings*/}
                   {/*</PopoverHeader>*/}
@@ -466,7 +469,7 @@ const FlightMap: FC<Props> = ({ data }) => {
                   <PopoverCloseButton />
                   <PopoverBody px={6} py={4}>
                     <VStack spacing={2}>
-                      <HStack spacing={2} w="100%">
+                      <HStack w="100%">
                         <FormControl display="flex" alignItems="center">
                           <Switch
                             id="show-trail-switch"
@@ -506,24 +509,47 @@ const FlightMap: FC<Props> = ({ data }) => {
                           </FormControl>
                         ) : null}
                       </HStack>
-                      <FormControl display="flex" alignItems="center">
-                        <Switch
-                          id="follow-mode-switch"
-                          size="sm"
-                          colorScheme="gray"
-                          isChecked={followMode}
-                          onChange={handleChangeFollowMode}
-                        />
-                        <FormLabel
-                          htmlFor="follow-mode-switch"
-                          ml={2}
-                          mb={0}
-                          fontSize="xs"
-                          cursor="pointer"
-                        >
-                          Follow mode
-                        </FormLabel>
-                      </FormControl>
+                      <HStack w="100%">
+                        <FormControl display="flex" alignItems="center">
+                          <Switch
+                            id="follow-mode-switch"
+                            size="sm"
+                            colorScheme="gray"
+                            isChecked={followMode}
+                            onChange={handleChangeFollowMode}
+                          />
+                          <FormLabel
+                            htmlFor="follow-mode-switch"
+                            ml={2}
+                            mb={0}
+                            fontSize="xs"
+                            cursor="pointer"
+                          >
+                            Follow mode
+                          </FormLabel>
+                        </FormControl>
+                        {followMode ? (
+                          <FormControl display="flex" alignItems="center">
+                            <Switch
+                              id="cinematic-effects-switch"
+                              size="sm"
+                              colorScheme="gray"
+                              isChecked={cinematicEffects}
+                              onChange={handleChangeCinematicEffects}
+                            />
+                            <FormLabel
+                              htmlFor="cinematic-effects-switch"
+                              ml={2}
+                              mb={0}
+                              fontSize="xs"
+                              cursor="pointer"
+                              whiteSpace="nowrap"
+                            >
+                              Cinematic effect
+                            </FormLabel>
+                          </FormControl>
+                        ) : null}
+                      </HStack>
                       <FormControl display="flex" alignItems="center">
                         <Switch
                           id="satellite-imagery-switch"
