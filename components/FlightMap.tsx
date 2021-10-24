@@ -373,7 +373,16 @@ const FlightMap: FC<Props> = ({ data }) => {
           {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
         </DeckGL>
       </Box>
-      <Box position="absolute" top={1} right={1} borderRadius={10} bg="#fff" p={2}>
+      <Box
+        position="absolute"
+        top={1}
+        right={1}
+        borderRadius={10}
+        bg="rgba(50,50,50,0.5)"
+        color="#fff"
+        fontWeight="bold"
+        p={2}
+      >
         <Grid templateColumns="min-content 60px">
           <Text fontSize="xs" whiteSpace="nowrap">
             Altitude:
@@ -389,8 +398,8 @@ const FlightMap: FC<Props> = ({ data }) => {
         left={0}
         width="100vw"
         opacity={0.975}
-        bg="#fff"
-        pb={1}
+        bg="rgba(50,50,50,0.5)"
+        pb={7}
         pt={3}
         px={5}
         // borderRadius={10}
