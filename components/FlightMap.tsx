@@ -45,7 +45,7 @@ import { getOrientationGetter, getPositionGetter } from '../lib/orientation';
 import { utcFormat } from 'd3-time-format';
 import isMobile from 'ismobilejs';
 
-const IS_MOBILE = isMobile(window.navigator)?.any;
+const IS_MOBILE = isMobile(globalThis.navigator)?.any;
 
 const formatTimeDiff = utcFormat('%H:%M:%S');
 export interface Props {
