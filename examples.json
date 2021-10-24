@@ -62,5 +62,13 @@
     "date": "2021-10-23",
     "igcUrl": "https://storage.googleapis.com/flight-replay/2021-10-23-XCT-XXX-03.igc",
     "source": "https://www.xcontest.org/world/en/flights/detail:yasuhana/23.10.2021/02:43"
+  },
+  {
+    "id": "68d27327-f19d-4cb7-a49f-5667705c8bf1",
+    "pilot": "Antoine Girard",
+    "location": "Chacabuco, Chile",
+    "date": "2019-02-24",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2019-02-24-XCS-AAA-02.igc",
+    "source": "https://www.xcontest.org/2019/world/en/flights/detail:antoinegirard/24.02.2019/15:46"
   }
 ]
