@@ -64,11 +64,27 @@
     "source": "https://www.xcontest.org/world/en/flights/detail:yasuhana/23.10.2021/02:43"
   },
   {
+    "id": "8e87d6d2-6c72-40ab-bb6a-f077edc017ae",
+    "pilot": "Leone Antonio Pascale",
+    "location": "Dicki Danda, Nepal",
+    "date": "2019-03-16",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2019-03-16-XCT-LPA-01.igc",
+    "source": "https://www.xcontest.org/2019/world/en/flights/detail:leone/16.3.2019/04:35"
+  },
+  {
     "id": "68d27327-f19d-4cb7-a49f-5667705c8bf1",
     "pilot": "Antoine Girard",
     "location": "Chacabuco, Chile",
     "date": "2019-02-24",
     "igcUrl": "https://storage.googleapis.com/flight-replay/2019-02-24-XCS-AAA-02.igc",
     "source": "https://www.xcontest.org/2019/world/en/flights/detail:antoinegirard/24.02.2019/15:46"
+  },
+  {
+    "id": "0eb1d77e-4d10-445c-becc-87a2df0ab7b8",
+    "pilot": "Juraj Koreň",
+    "location": "Burned burial ground, Nepal",
+    "date": "2016-03-08",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2016-03-08-XCT-JKO-01.igc",
+    "source": "https://www.xcontest.org/2016/world/en/flights/detail:durifuk/8.3.2016/05:14"
   }
 ]
