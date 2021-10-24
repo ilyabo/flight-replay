@@ -41,9 +41,10 @@ const Uuid: FC<Props> = (props) => {
       {data ? (
         <FlightMap data={data} />
       ) : (
-        <Flex height="100vh" alignItems="center" justifyContent="center">
+
+        <Flex position="absolute" inset="0px" alignItems="center" justifyContent="center">
           <Spinner color="tomato" />
-        </Flex>
+        </Flex>        
       )}
     </>
   );

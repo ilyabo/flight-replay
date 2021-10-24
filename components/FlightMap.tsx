@@ -186,7 +186,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           ...viewport,
           longitude: position[0],
           latitude: position[1],
-          pitch: 40 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) * 20 : 0),
+          pitch: 20 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) * 5 : 0),
           // bearing: 0,
           // bearing: ((currentTime.getTime() / 50000) % 360) - 180,
           bearing: cinematicEffects ? Math.sin(currentTime.getTime() / 2000000) * 180 : 0,
