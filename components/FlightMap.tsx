@@ -382,14 +382,14 @@ const FlightMap: FC<Props> = ({ data }) => {
         top={1}
         left={1}
         bg={theme.colors.overlayBg}
-        color="tomato"
+        color="#fff"
         fontWeight="bold"
         textShadow="0 0 1px #000"
         p={2}
       >
         <Link href="/">
-          <Heading fontSize={14} textTransform="uppercase" cursor="pointer">
-            Flight Replay
+          <Heading fontSize={12} textTransform="uppercase" cursor="pointer">
+            FlightReplay
           </Heading>
         </Link>
       </Box>

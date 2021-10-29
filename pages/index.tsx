@@ -17,7 +17,9 @@ const Home: NextPage = () => {
 
       <Box maxW="10xl" margin="auto" padding={10}>
         <VStack spacing={10}>
-          <Heading size="xl">Flight Replay</Heading>
+          <Heading size="lg" textTransform="uppercase">
+            Flight Replay
+          </Heading>
           <Box position="relative" maxWidth="100%" h={[200, 300, 400]} w={[300, 400, 500]}>
             <Image src={screenshot} layout="fill" objectFit="contain" />
           </Box>
