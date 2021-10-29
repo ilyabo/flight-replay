@@ -21,7 +21,14 @@ const Home: NextPage = () => {
             Flight Replay
           </Heading>
           <Box position="relative" maxWidth="100%" h={[200, 300, 400]} w={[300, 400, 500]}>
-            <Image src={screenshot} layout="fill" objectFit="contain" />
+            <Image
+              src={screenshot}
+              layout="fill"
+              objectFit="contain"
+              blurDataURL={screenshot.blurDataURL}
+              placeholder="blur"
+              quality={90}
+            />
           </Box>
           <VStack spacing={5}>
             <Heading size="md">Example flights</Heading>
