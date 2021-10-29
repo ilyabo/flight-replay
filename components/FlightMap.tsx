@@ -377,9 +377,9 @@ const FlightMap: FC<Props> = ({ data }) => {
         position="absolute"
         top={1}
         right={1}
-        borderRadius={10}
+        // borderRadius={10}
         bg="rgba(50,50,50,0.5)"
-        color="#fff"
+        color="tomato"
         fontWeight="bold"
         p={2}
       >
