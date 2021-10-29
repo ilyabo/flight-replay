@@ -4,6 +4,7 @@ export type MovementTrace = {
   meta: {
     pilot: string;
     date: string;
+    location: string;
   };
   path: TrajPoint[];
   timestamps: number[];
