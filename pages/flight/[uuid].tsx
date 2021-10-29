@@ -16,7 +16,7 @@ const globalStyles = css`
 `;
 
 async function fetchMovementTrace(uuid: string): Promise<MovementTrace> {
-  const response = await fetch(`/api/load-flight?id=${uuid}`);
+  const response = await fetch(`/api/flight?id=${uuid}`);
   return await response.json();
 }
 
@@ -41,10 +41,9 @@ const Uuid: FC<Props> = (props) => {
       {data ? (
         <FlightMap data={data} />
       ) : (
-
         <Flex position="absolute" inset="0px" alignItems="center" justifyContent="center">
           <Spinner color="tomato" />
-        </Flex>        
+        </Flex>
       )}
     </>
   );

@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { MapContext, StaticMap } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DeckGL from '@deck.gl/react';
 import { TripsLayer } from '@deck.gl/geo-layers';
@@ -23,6 +24,7 @@ import {
   FormControl,
   FormLabel,
   Grid,
+  Heading,
   HStack,
   Popover,
   PopoverArrow,
@@ -37,6 +39,7 @@ import {
   SliderTrack,
   Switch,
   Text,
+  useTheme,
   VStack,
 } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
@@ -106,6 +109,7 @@ const FlightMap: FC<Props> = ({ data }) => {
   const [cinematicEffects, setCinematicEffects] = useState(true);
   const [satelliteImagery, setSatelliteImagery] = useState(true);
 
+  const theme = useTheme();
   const timeScale = useMemo(() => {
     return scaleTime()
       .domain([
@@ -376,14 +380,49 @@ const FlightMap: FC<Props> = ({ data }) => {
       <Box
         position="absolute"
         top={1}
+        left={1}
+        bg={theme.colors.overlayBg}
+        color="tomato"
+        fontWeight="bold"
+        textShadow="0 0 1px #000"
+        p={2}
+      >
+        <Link href="/">
+          <Heading fontSize={14} textTransform="uppercase" cursor="pointer">
+            Flight Replay
+          </Heading>
+        </Link>
+      </Box>
+      <Box
+        position="absolute"
+        bottom={95}
+        left={1}
+        bg={theme.colors.overlayBg}
+        color="tomato"
+        p={2}
+        fontSize={10}
+        textShadow="0 0 1px #000"
+      >
+        <Grid templateColumns="min-content 1fr" columnGap={1}>
+          <Text fontWeight="bold">Pilot:</Text>
+          <div>{data[0].meta?.pilot}</div>
+          <Text fontWeight="bold">Date:</Text>
+          <div>{data[0].meta?.date}</div>
+          <Text fontWeight="bold">Location:</Text>
+          <div>{data[0].meta?.location}</div>
+        </Grid>
+      </Box>
+      <Box
+        position="absolute"
+        top={1}
         right={1}
         // borderRadius={10}
-        bg="rgba(50,50,50,0.5)"
+        bg={theme.colors.overlayBg}
         color="tomato"
         fontWeight="bold"
         p={2}
       >
-        <Grid templateColumns="min-content 60px">
+        <Grid templateColumns="min-content 60px" textShadow="0 0 1px #000">
           <Text fontSize="xs" whiteSpace="nowrap">
             Altitude:
           </Text>
@@ -398,7 +437,7 @@ const FlightMap: FC<Props> = ({ data }) => {
         left={0}
         width="100vw"
         opacity={0.975}
-        bg="rgba(50,50,50,0.5)"
+        bg={theme.colors.overlayBg}
         pb={7}
         pt={3}
         px={5}
@@ -421,7 +460,14 @@ const FlightMap: FC<Props> = ({ data }) => {
               <SliderFilledTrack bg="tomato" />
             </SliderTrack>
             <SliderThumb boxSize={4} bg="tomato">
-              <Box color="tomato" position="relative" bottom={5} whiteSpace="nowrap" fontSize={10}>
+              <Box
+                color="tomato"
+                position="relative"
+                bottom={5}
+                whiteSpace="nowrap"
+                fontSize={10}
+                textShadow="0 0 1px #000"
+              >
                 {/*<VStack textAlign="center" spacing={0}>*/}
                 {/*  <span>{format(currentTime, 'HH:mm:ss')}</span>*/}
                 {/*  <span>{format(currentTime, 'yyyy-MM-dd')}</span>*/}
@@ -452,7 +498,14 @@ const FlightMap: FC<Props> = ({ data }) => {
                 <SliderFilledTrack bg="tomato" />
               </SliderTrack>
               <SliderThumb bg="tomato">
-                <Box color="tomato" position="relative" left={6} whiteSpace="nowrap" fontSize={10}>
+                <Box
+                  color="tomato"
+                  position="relative"
+                  left={6}
+                  whiteSpace="nowrap"
+                  fontSize={10}
+                  textShadow="0 0 1px #000"
+                >
                   <span>{animationSpeed}x</span>
                 </Box>
               </SliderThumb>

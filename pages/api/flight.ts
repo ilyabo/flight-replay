@@ -4,16 +4,17 @@ import fetchIgc from '../../lib/fetchIgc';
 import { MovementTrace } from '../../types';
 import examples from '../../examples.json';
 
-export default async function loadFlight(
+export default async function flight(
   req: NextApiRequest,
   res: NextApiResponse<MovementTrace | null>
 ) {
   const { id } = req.query;
-  const url = examples.find((d) => d.id === id)?.igcUrl;
+  const entry = examples.find((d) => d.id === id);
+  const url = entry?.igcUrl;
   if (!url) {
     res.status(404).json(null);
     return;
   }
-  const data = await fetchIgc(url);
+  const data = await fetchIgc(url, { meta: entry });
   res.status(200).json(data);
 }

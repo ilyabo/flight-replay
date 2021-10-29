@@ -7,5 +7,8 @@ const config: ThemeConfig = {
 };
 const theme = extendTheme({
   config,
+  colors: {
+    overlayBg: 'rgba(50,50,60,0.5)',
+  },
 });
 export default theme;
