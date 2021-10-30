@@ -15,10 +15,11 @@ export default async function fetchIgc(
 function prepareIgcForTripsLayer(data: IGCParser.IGCFile, meta: any): MovementTrace {
   const { fixes, ...rest } = data;
   const traj = fixes
+    .filter(({ valid }) => valid !== false)
     .map(({ latitude, longitude, timestamp, pressureAltitude, gpsAltitude }) => ({
       lat: latitude,
       lon: longitude,
-      alt: pressureAltitude || gpsAltitude || 0,
+      alt: gpsAltitude || pressureAltitude || 0,
       timestamp,
     }))
     .sort((a, b) => ascending(a.timestamp, b.timestamp));

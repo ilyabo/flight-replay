@@ -109,6 +109,7 @@ const FlightMap: FC<Props> = ({ data }) => {
   const [viewport, setViewport] = useState(INITIAL_VIEWPORT);
   const [showTrail, setShowTrail] = useState(!IS_MOBILE);
   const [fadeTrail, setFadeTrail] = useState(true);
+  const [colorBySpeed, setColorBySpeed] = useState(false);
   const [followMode, setFollowMode] = useState(true);
   const [cinematicEffects, setCinematicEffects] = useState(true);
   const [satelliteImagery, setSatelliteImagery] = useState(true);
@@ -288,8 +289,9 @@ const FlightMap: FC<Props> = ({ data }) => {
         // deduct start timestamp from each data point to avoid overflow
         getTimestamps: (d: MovementTrace) =>
           d.timestamps.map((t) => t - timeScale.domain()[0].getTime()),
-        // getColor: (d: MovementTrace) => [253, 128, 93],
-        getColor: (d: EnrichedMovementTrace) => d.speedColors,
+        getColor: colorBySpeed
+          ? (d: EnrichedMovementTrace) => d.speedColors
+          : (d: EnrichedMovementTrace) => [253, 128, 93],
         opacity: 1,
         widthMinPixels: 5,
         jointRounded: true,
@@ -298,6 +300,9 @@ const FlightMap: FC<Props> = ({ data }) => {
         fadeTrail,
         trailLength: 200000,
         currentTime: currentTime.getTime() - timeScale.domain()[0].getTime(),
+        updateTriggers: {
+          getColor: { colorBySpeed },
+        },
       })
     );
   }
@@ -349,6 +354,9 @@ const FlightMap: FC<Props> = ({ data }) => {
 
   const handleChangeFadeTrail = (evt: SyntheticEvent) =>
     setFadeTrail((evt.target as HTMLInputElement).checked);
+
+  const handleChangeColorBySpeed = (evt: SyntheticEvent) =>
+    setColorBySpeed((evt.target as HTMLInputElement).checked);
 
   const handleChangeFollowMode = (evt: SyntheticEvent) =>
     setFollowMode((evt.target as HTMLInputElement).checked);
@@ -558,7 +566,7 @@ const FlightMap: FC<Props> = ({ data }) => {
                   <PopoverCloseButton />
                   <PopoverBody px={6} py={4}>
                     <VStack spacing={2}>
-                      <HStack w="100%">
+                      <HStack w="100%" alignItems="flex-start">
                         <FormControl display="flex" alignItems="center">
                           <Switch
                             id="show-trail-switch"
@@ -578,24 +586,44 @@ const FlightMap: FC<Props> = ({ data }) => {
                           </FormLabel>
                         </FormControl>
                         {showTrail ? (
-                          <FormControl display="flex" alignItems="center">
-                            <Switch
-                              id="fade-trail-switch"
-                              size="sm"
-                              colorScheme="gray"
-                              isChecked={fadeTrail}
-                              onChange={handleChangeFadeTrail}
-                            />
-                            <FormLabel
-                              htmlFor="fade-trail-switch"
-                              ml={2}
-                              mb={0}
-                              fontSize="xs"
-                              cursor="pointer"
-                            >
-                              Fade trail
-                            </FormLabel>
-                          </FormControl>
+                          <VStack spacing={2} width="100%">
+                            <FormControl display="flex" alignItems="center">
+                              <Switch
+                                id="fade-trail-switch"
+                                size="sm"
+                                colorScheme="gray"
+                                isChecked={fadeTrail}
+                                onChange={handleChangeFadeTrail}
+                              />
+                              <FormLabel
+                                htmlFor="fade-trail-switch"
+                                ml={2}
+                                mb={0}
+                                fontSize="xs"
+                                cursor="pointer"
+                              >
+                                Fade trail
+                              </FormLabel>
+                            </FormControl>
+                            <FormControl display="flex" alignItems="center">
+                              <Switch
+                                id="color-by-speed-switch"
+                                size="sm"
+                                colorScheme="gray"
+                                isChecked={colorBySpeed}
+                                onChange={handleChangeColorBySpeed}
+                              />
+                              <FormLabel
+                                htmlFor="color-by-speed-switch"
+                                ml={2}
+                                mb={0}
+                                fontSize="xs"
+                                cursor="pointer"
+                              >
+                                Color by speed
+                              </FormLabel>
+                            </FormControl>
+                          </VStack>
                         ) : null}
                       </HStack>
                       <HStack w="100%">

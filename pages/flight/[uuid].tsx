@@ -7,7 +7,7 @@ import { css, Global } from '@emotion/react';
 import distance from '@turf/distance';
 import { scaleSequential } from 'd3-scale';
 import { interpolateRdBu, interpolateRdYlBu } from 'd3-scale-chromatic';
-import { max, min } from 'd3-array';
+import { max, min, sum } from 'd3-array';
 import { colorAsRgb } from '../../lib/color';
 import { runningAverage2 } from '../../lib/orientation';
 
@@ -21,6 +21,22 @@ const globalStyles = css`
   }
 `;
 
+// function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+//   const R = 6371; // Radius of the earth in km
+//   const dLat = deg2rad(lat2 - lat1); // deg2rad below
+//   const dLon = deg2rad(lon2 - lon1);
+//   const a =
+//     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+//     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//   const d = R * c; // Distance in km
+//   return d;
+// }
+//
+// function deg2rad(deg: number) {
+//   return deg * (Math.PI / 180);
+// }
+
 function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
   const distances = trace.path.map((p, i) => {
     if (i === 0) {
@@ -28,6 +44,7 @@ function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
     }
     const prev = trace.path[i - 1];
     return distance(p, prev, { units: 'kilometers' });
+    // return getDistanceFromLatLonInKm(p[1], p[0], prev[1], prev[0]);
   });
 
   const distancesFromStart = distances.reduce((acc, d, i) => {
@@ -42,6 +59,12 @@ function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
     const t = trace.timestamps[i] - trace.timestamps[i - 1];
     return (d / t) * 1000 * 60 * 60;
   });
+  // console.log(
+  //   (sum(distances) / (trace.timestamps[trace.timestamps.length - 1] - trace.timestamps[0])) *
+  //     1000 *
+  //     60 *
+  //     60
+  // );
 
   const speedsRunningAverage = runningAverage2(speeds, (d) => d, 50);
 
