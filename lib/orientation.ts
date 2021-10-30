@@ -30,7 +30,7 @@ export function radiansToDegrees(x: number) {
   return rv;
 }
 
-export function runningAverage2<T>(arr: T[], f: (p1: T) => number, steps = 10) {
+export function runningAverage<T>(arr: T[], f: (p: T) => number, steps = 10) {
   return arr.map((d, i) => {
     let avg = f(d),
       count = 0;
@@ -43,12 +43,20 @@ export function runningAverage2<T>(arr: T[], f: (p1: T) => number, steps = 10) {
   });
 }
 
-export function runningAverage<T>(arr: T[], idx: number, f: (p1: T, p2: T) => number, steps = 10) {
+export function runningAverageDiffs<T>(
+  arr: T[],
+  idx: number,
+  f: (p1: T, p2: T) => number,
+  steps = 10
+) {
   let sum = 0,
     cnt = 0;
   for (let i = 1; i < steps; i++) {
     const prevIdx = idx + 1 - i;
     const nextIdx = idx + 1;
+
+    // const prevIdx = idx + 1 - i - 1;
+    // const nextIdx = idx + 1 - i;
 
     // const nextIdx = idx + 1 - i + 1;
     // const prevIdx = idx + 1 - i;
@@ -86,13 +94,13 @@ export function getOrientationGetter(currentTime: Date, runningAverageSteps = 10
     const timeOff = getTimeOffset(currentTime, timestamps, idx);
     const angles = interpolateArray(
       [
-        angleX + runningAverage(path, idx - 1, getPitch, runningAverageSteps),
-        angleY + runningAverage(path, idx - 1, getYaw, runningAverageSteps),
+        angleX + runningAverageDiffs(path, idx - 1, getPitch, runningAverageSteps),
+        angleY + runningAverageDiffs(path, idx - 1, getYaw, runningAverageSteps),
         angleZ,
       ],
       [
-        angleX + runningAverage(path, idx, getPitch, runningAverageSteps),
-        angleY + runningAverage(path, idx, getYaw, runningAverageSteps),
+        angleX + runningAverageDiffs(path, idx, getPitch, runningAverageSteps),
+        angleY + runningAverageDiffs(path, idx, getYaw, runningAverageSteps),
         angleZ,
       ]
     )(timeOff);
@@ -112,14 +120,14 @@ export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
     if (runningAverageSteps > 0) {
       return interpolateArray(
         [
-          runningAverage(path, idx - 1, (d) => d[0], runningAverageSteps),
-          runningAverage(path, idx - 1, (d) => d[1], runningAverageSteps),
-          runningAverage(path, idx - 1, (d) => d[2], runningAverageSteps),
+          runningAverageDiffs(path, idx - 1, (d) => d[0], runningAverageSteps),
+          runningAverageDiffs(path, idx - 1, (d) => d[1], runningAverageSteps),
+          runningAverageDiffs(path, idx - 1, (d) => d[2], runningAverageSteps),
         ],
         [
-          runningAverage(path, idx, (d) => d[0], runningAverageSteps),
-          runningAverage(path, idx, (d) => d[1], runningAverageSteps),
-          runningAverage(path, idx, (d) => d[2], runningAverageSteps),
+          runningAverageDiffs(path, idx, (d) => d[0], runningAverageSteps),
+          runningAverageDiffs(path, idx, (d) => d[1], runningAverageSteps),
+          runningAverageDiffs(path, idx, (d) => d[2], runningAverageSteps),
         ]
       )(timeOff);
     }

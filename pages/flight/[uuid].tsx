@@ -9,7 +9,7 @@ import { scaleSequential } from 'd3-scale';
 import { interpolateRdBu, interpolateRdYlBu } from 'd3-scale-chromatic';
 import { max, min, sum } from 'd3-array';
 import { colorAsRgb } from '../../lib/color';
-import { runningAverage2 } from '../../lib/orientation';
+import { runningAverage } from '../../lib/orientation';
 
 export interface Props {}
 
@@ -66,7 +66,7 @@ function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
   //     60
   // );
 
-  const speedsRunningAverage = runningAverage2(speeds, (d) => d, 50);
+  const speedsRunningAverage = runningAverage(speeds, (d) => d, 50);
 
   const colorScale = scaleSequential(interpolateRdYlBu).domain([
     max(speedsRunningAverage) || 0,
