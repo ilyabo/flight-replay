@@ -21,7 +21,6 @@ import { FaCog, FaPause, FaPlay } from 'react-icons/fa';
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormLabel,
   Grid,
@@ -45,7 +44,11 @@ import {
 } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
 import { max, min } from 'd3-array';
-import { getOrientationGetter, getPositionGetter, getSpeedGetter } from '../lib/orientation';
+import {
+  getIndexFromTimeGetter,
+  getOrientationGetter,
+  getPositionGetter,
+} from '../lib/orientation';
 import { utcFormat } from 'd3-time-format';
 import isMobile from 'ismobilejs';
 
@@ -285,7 +288,8 @@ const FlightMap: FC<Props> = ({ data }) => {
         // deduct start timestamp from each data point to avoid overflow
         getTimestamps: (d: MovementTrace) =>
           d.timestamps.map((t) => t - timeScale.domain()[0].getTime()),
-        getColor: (d: MovementTrace) => [253, 128, 93],
+        // getColor: (d: MovementTrace) => [253, 128, 93],
+        getColor: (d: EnrichedMovementTrace) => d.speedColors,
         opacity: 1,
         widthMinPixels: 5,
         jointRounded: true,
@@ -327,8 +331,8 @@ const FlightMap: FC<Props> = ({ data }) => {
       getPosition: getPositionGetter(currentTime),
       // getOrientation: (d: MovementTrace) => [0, 0, 90],
       getOrientation: getOrientationGetter(currentTime),
-      _lighting: 'pbr',
       getColor: [253, 128, 93],
+      _lighting: 'pbr',
       updateTriggers: {
         getOrientation: {
           currentTime,
@@ -421,8 +425,9 @@ const FlightMap: FC<Props> = ({ data }) => {
         bg={theme.colors.overlayBg}
         color="tomato"
         p={2}
+        textShadow="0 0 1px #000"
       >
-        <Grid templateColumns="min-content 60px" textShadow="0 0 1px #000">
+        <Grid templateColumns="min-content 60px">
           <Text fontSize="xs" whiteSpace="nowrap" textTransform="uppercase">
             Altitude
           </Text>
@@ -436,9 +441,22 @@ const FlightMap: FC<Props> = ({ data }) => {
             Speed
           </Text>
           <Text textAlign="end" fontSize="26" fontWeight="bold">
-            {`${Math.round(getSpeedGetter(currentTime)(data[0]))} km/h`}
+            {`${Math.round(
+              data[0].speedsRunningAverage[getIndexFromTimeGetter(data[0], currentTime)] || 0
+            )} km/h`}
           </Text>
         </Box>
+
+        <Grid templateColumns="min-content 60px">
+          <Text fontSize="xs" whiteSpace="nowrap" textTransform="uppercase">
+            Distance
+          </Text>
+          <Text alignSelf="center" justifySelf="end" fontSize="xs">
+            {`${Math.round(
+              data[0].distancesFromStart[getIndexFromTimeGetter(data[0], currentTime)]
+            )} km`}
+          </Text>
+        </Grid>
       </Box>
       <Box
         position="absolute"

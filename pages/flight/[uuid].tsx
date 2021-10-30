@@ -1,10 +1,15 @@
 import { EnrichedMovementTrace, MovementTrace } from '../../types';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import FlightMap from '../../components/FlightMap';
 import { Box, Flex, Spinner } from '@chakra-ui/react';
 import { css, Global } from '@emotion/react';
 import distance from '@turf/distance';
+import { scaleSequential } from 'd3-scale';
+import { interpolateRdBu, interpolateRdYlBu } from 'd3-scale-chromatic';
+import { max, min } from 'd3-array';
+import { colorAsRgb } from '../../lib/color';
+import { runningAverage2 } from '../../lib/orientation';
 
 export interface Props {}
 
@@ -17,17 +22,44 @@ const globalStyles = css`
 `;
 
 function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
+  const distances = trace.path.map((p, i) => {
+    if (i === 0) {
+      return 0;
+    }
+    const prev = trace.path[i - 1];
+    return distance(p, prev, { units: 'kilometers' });
+  });
+
+  const distancesFromStart = distances.reduce((acc, d, i) => {
+    acc.push((i > 0 ? acc[i - 1] : 0) + d);
+    return acc;
+  }, [] as number[]);
+
+  const speeds = distances.map((d, i) => {
+    if (i === 0) {
+      return 0;
+    }
+    const t = trace.timestamps[i] - trace.timestamps[i - 1];
+    return (d / t) * 1000 * 60 * 60;
+  });
+
+  const speedsRunningAverage = runningAverage2(speeds, (d) => d, 50);
+
+  const colorScale = scaleSequential(interpolateRdYlBu).domain([
+    max(speedsRunningAverage) || 0,
+    min(speedsRunningAverage) || 0,
+  ]);
+
+  const speedColors = speedsRunningAverage.map((d, i) => {
+    return colorAsRgb(colorScale(d));
+  });
+
   return {
     ...trace,
-    speeds: trace.path.map((p, i) => {
-      if (i === 0) {
-        return 0;
-      }
-      const prev = trace.path[i - 1];
-      const d = distance(p, prev, { units: 'kilometers' });
-      const t = trace.timestamps[i] - trace.timestamps[i - 1];
-      return (d / t) * 1000 * 60 * 60;
-    }),
+    distancesFromStart,
+    speeds,
+    speedsRunningAverage,
+    speedColors,
   };
 }
 

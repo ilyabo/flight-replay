@@ -12,4 +12,7 @@ export type MovementTrace = {
 
 export type EnrichedMovementTrace = MovementTrace & {
   speeds: number[];
+  speedsRunningAverage: number[];
+  distancesFromStart: number[];
+  speedColors: [number, number, number][];
 };

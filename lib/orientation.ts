@@ -1,5 +1,5 @@
 import { EnrichedMovementTrace, MovementTrace, TrajPoint } from '../types';
-import { bisectRight } from 'd3-array';
+import { bisect, bisectLeft, bisectRight } from 'd3-array';
 import { interpolateArray } from 'd3-interpolate';
 
 const angleX = 90;
@@ -28,6 +28,19 @@ export function getPitch(prevPoint: [number, number, number], nextPoint: [number
 export function radiansToDegrees(x: number) {
   let rv = (x * 180) / Math.PI;
   return rv;
+}
+
+export function runningAverage2<T>(arr: T[], f: (p1: T) => number, steps = 10) {
+  return arr.map((d, i) => {
+    let avg = f(d),
+      count = 0;
+    for (let j = i - 1; j >= i - steps && j >= 0; j--) {
+      avg += f(arr[j]);
+      count++;
+    }
+    avg /= count;
+    return avg;
+  });
 }
 
 export function runningAverage<T>(arr: T[], idx: number, f: (p1: T, p2: T) => number, steps = 10) {
@@ -114,12 +127,10 @@ export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
   };
 }
 
-export function getSpeedGetter(currentTime: Date, runningAverageSteps = 30) {
-  return ({ timestamps, speeds }: EnrichedMovementTrace) => {
-    const idx = bisectRight(timestamps, currentTime.getTime());
-    if (idx < 1 || idx > speeds.length - 1) {
-      return 0;
-    }
-    return runningAverage(speeds, idx - 1, (d) => d, runningAverageSteps);
-  };
+export function getIndexFromTimeGetter({ timestamps }: EnrichedMovementTrace, currentTime: Date) {
+  const idx = bisectLeft(timestamps, currentTime.getTime());
+  if (idx < 0 || idx > timestamps.length - 1) {
+    return -1;
+  }
+  return idx;
 }
