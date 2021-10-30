@@ -9,3 +9,7 @@ export type MovementTrace = {
   path: TrajPoint[];
   timestamps: number[];
 };
+
+export type EnrichedMovementTrace = MovementTrace & {
+  speeds: number[];
+};

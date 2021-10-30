@@ -16,11 +16,12 @@ import DeckGL from '@deck.gl/react';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { AmbientLight, DirectionalLight, LightingEffect, MapView, PointLight } from '@deck.gl/core';
-import { MovementTrace } from '../types';
+import { EnrichedMovementTrace, MovementTrace } from '../types';
 import { FaCog, FaPause, FaPlay } from 'react-icons/fa';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Grid,
@@ -44,7 +45,7 @@ import {
 } from '@chakra-ui/react';
 import { scaleTime } from 'd3-scale';
 import { max, min } from 'd3-array';
-import { getOrientationGetter, getPositionGetter } from '../lib/orientation';
+import { getOrientationGetter, getPositionGetter, getSpeedGetter } from '../lib/orientation';
 import { utcFormat } from 'd3-time-format';
 import isMobile from 'ismobilejs';
 
@@ -52,7 +53,7 @@ const IS_MOBILE = isMobile(globalThis.navigator)?.any;
 
 const formatTimeDiff = utcFormat('%H:%M:%S');
 export interface Props {
-  data: MovementTrace[];
+  data: EnrichedMovementTrace[];
 }
 // create ambient light source
 const ambientLight = new AmbientLight({
@@ -419,17 +420,25 @@ const FlightMap: FC<Props> = ({ data }) => {
         // borderRadius={10}
         bg={theme.colors.overlayBg}
         color="tomato"
-        fontWeight="bold"
         p={2}
       >
         <Grid templateColumns="min-content 60px" textShadow="0 0 1px #000">
-          <Text fontSize="xs" whiteSpace="nowrap">
-            Altitude:
+          <Text fontSize="xs" whiteSpace="nowrap" textTransform="uppercase">
+            Altitude
           </Text>
           <Text alignSelf="center" justifySelf="end" fontSize="xs">{`${Math.round(
             getPositionGetter(currentTime)(data[0])[2]
           )} m`}</Text>
         </Grid>
+
+        <Box>
+          <Text fontSize="xs" whiteSpace="nowrap" textTransform="uppercase">
+            Speed
+          </Text>
+          <Text textAlign="end" fontSize="26" fontWeight="bold">
+            {`${Math.round(getSpeedGetter(currentTime)(data[0]))} km/h`}
+          </Text>
+        </Box>
       </Box>
       <Box
         position="absolute"

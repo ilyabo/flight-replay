@@ -1,4 +1,4 @@
-import { MovementTrace, TrajPoint } from '../types';
+import { EnrichedMovementTrace, MovementTrace, TrajPoint } from '../types';
 import { bisectRight } from 'd3-array';
 import { interpolateArray } from 'd3-interpolate';
 
@@ -30,12 +30,7 @@ export function radiansToDegrees(x: number) {
   return rv;
 }
 
-export function runningAverage(
-  arr: TrajPoint[],
-  idx: number,
-  f: (p1: [number, number, number], p2: [number, number, number]) => number,
-  steps = 10
-) {
+export function runningAverage<T>(arr: T[], idx: number, f: (p1: T, p2: T) => number, steps = 10) {
   let sum = 0,
     cnt = 0;
   for (let i = 1; i < steps; i++) {
@@ -116,5 +111,15 @@ export function getPositionGetter(currentTime: Date, runningAverageSteps = 0) {
       )(timeOff);
     }
     return interpolateArray(path[idx - 1], path[idx])(timeOff);
+  };
+}
+
+export function getSpeedGetter(currentTime: Date, runningAverageSteps = 30) {
+  return ({ timestamps, speeds }: EnrichedMovementTrace) => {
+    const idx = bisectRight(timestamps, currentTime.getTime());
+    if (idx < 1 || idx > speeds.length - 1) {
+      return 0;
+    }
+    return runningAverage(speeds, idx - 1, (d) => d, runningAverageSteps);
   };
 }
