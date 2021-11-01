@@ -1,4 +1,4 @@
-import { EnrichedMovementTrace, MovementTrace } from '../../types';
+import { EnrichedMovementTrace, MovementTrace, TrajPoint } from '../../types';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import FlightMap from '../../components/FlightMap';
@@ -9,7 +9,7 @@ import { scaleSequential } from 'd3-scale';
 import { interpolateRdBu, interpolateRdYlBu } from 'd3-scale-chromatic';
 import { max, min, sum } from 'd3-array';
 import { colorAsRgb } from '../../lib/color';
-import { runningAverage } from '../../lib/orientation';
+import { runningAverage, runningAverageArr } from '../../lib/orientation';
 
 export interface Props {}
 
@@ -38,33 +38,38 @@ const globalStyles = css`
 // }
 
 function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
-  const distances = trace.path.map((p, i) => {
+  const smoothedPath = runningAverageArr(trace.path, (d) => d, 10) as TrajPoint[];
+  const smoothedPath100 = runningAverageArr(trace.path, (d) => d, 100) as TrajPoint[];
+  const smoothedPath800 = runningAverageArr(trace.path, (d) => d, 800) as TrajPoint[];
+
+  const distances100 = smoothedPath100.map((p, i) => {
     if (i === 0) {
       return 0;
     }
-    const prev = trace.path[i - 1];
+    const prev = smoothedPath100[i - 1];
     return distance(p, prev, { units: 'kilometers' });
-    // return getDistanceFromLatLonInKm(p[1], p[0], prev[1], prev[0]);
   });
 
-  const distancesFromStart = distances.reduce((acc, d, i) => {
-    acc.push((i > 0 ? acc[i - 1] : 0) + d);
-    return acc;
-  }, [] as number[]);
-
-  const speeds = distances.map((d, i) => {
+  const speeds = distances100.map((d, i) => {
     if (i === 0) {
       return 0;
     }
     const t = trace.timestamps[i] - trace.timestamps[i - 1];
     return (d / t) * 1000 * 60 * 60;
   });
-  // console.log(
-  //   (sum(distances) / (trace.timestamps[trace.timestamps.length - 1] - trace.timestamps[0])) *
-  //     1000 *
-  //     60 *
-  //     60
-  // );
+
+  const distances800 = smoothedPath800.map((p, i) => {
+    if (i === 0) {
+      return 0;
+    }
+    const prev = smoothedPath800[i - 1];
+    return distance(p, prev, { units: 'kilometers' });
+  });
+
+  const distancesFromStart = distances800.reduce((acc, d, i) => {
+    acc.push((i > 0 ? acc[i - 1] : 0) + d);
+    return acc;
+  }, [] as number[]);
 
   const speedsRunningAverage = runningAverage(speeds, (d) => d, 50);
 
@@ -79,6 +84,7 @@ function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
 
   return {
     ...trace,
+    path: smoothedPath,
     distancesFromStart,
     speeds,
     speedsRunningAverage,

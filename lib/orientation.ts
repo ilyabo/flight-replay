@@ -43,6 +43,24 @@ export function runningAverage<T>(arr: T[], f: (p: T) => number, steps = 10) {
   });
 }
 
+export function runningAverageArr<T>(arr: T[], f: (p: T) => number[], steps = 10) {
+  return arr.map((d, i) => {
+    let avg = [...f(d)],
+      count = 1;
+    for (let j = i - 1; j >= i - steps && j >= 0; j--) {
+      const v = f(arr[j]);
+      avg.forEach((x, k) => {
+        avg[k] = x + v[k];
+      });
+      count++;
+    }
+    avg.forEach((x, k) => {
+      avg[k] = x / count;
+    });
+    return avg;
+  });
+}
+
 export function runningAverageDiffs<T>(
   arr: T[],
   idx: number,
