@@ -6,7 +6,7 @@ import examples from '../../examples.json';
 
 export default async function flight(
   req: NextApiRequest,
-  res: NextApiResponse<MovementTrace | null>
+  res: NextApiResponse<MovementTrace | string | null>
 ) {
   const { id } = req.query;
   const entry = examples.find((d) => d.id === id);
@@ -15,6 +15,10 @@ export default async function flight(
     res.status(404).json(null);
     return;
   }
-  const data = await fetchIgc(url, { meta: entry });
-  res.status(200).json(data);
+  try {
+    const data = await fetchIgc(url, { meta: entry });
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).send(`${err instanceof Error ? err.message : err}`);
+  }
 }

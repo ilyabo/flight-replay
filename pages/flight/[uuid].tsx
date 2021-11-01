@@ -2,7 +2,7 @@ import { EnrichedMovementTrace, MovementTrace, TrajPoint } from '../../types';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import FlightMap from '../../components/FlightMap';
-import { Box, Flex, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Spinner, VStack, Text } from '@chakra-ui/react';
 import { css, Global } from '@emotion/react';
 import distance from '@turf/distance';
 import { scaleSequential } from 'd3-scale';
@@ -10,6 +10,7 @@ import { interpolateRdBu, interpolateRdYlBu } from 'd3-scale-chromatic';
 import { max, min, sum } from 'd3-array';
 import { colorAsRgb } from '../../lib/color';
 import { runningAverage, runningAverageArr } from '../../lib/orientation';
+import Link from 'next/link';
 
 export interface Props {}
 
@@ -94,20 +95,30 @@ function enrichMovementTrace(trace: MovementTrace): EnrichedMovementTrace {
 
 async function fetchMovementTrace(uuid: string): Promise<EnrichedMovementTrace> {
   const response = await fetch(`/api/flight?id=${uuid}`);
-  return enrichMovementTrace(await response.json());
+  if (response.status === 200) {
+    const result = await response.json();
+    return enrichMovementTrace(result);
+  }
+  throw new Error(await response.text());
 }
 
 const Uuid: FC<Props> = (props) => {
   const { query } = useRouter();
   const uuids = query.uuid;
   const [data, setData] = useState<EnrichedMovementTrace[]>();
+  const [error, setError] = useState<string>();
   useEffect(() => {
     (async () => {
       if (uuids) {
-        if (Array.isArray(uuids)) {
-          setData(await Promise.all(uuids.map(fetchMovementTrace)));
-        } else {
-          setData([await fetchMovementTrace(uuids)]);
+        try {
+          if (Array.isArray(uuids)) {
+            setData(await Promise.all(uuids.map(fetchMovementTrace)));
+          } else {
+            setData([await fetchMovementTrace(uuids)]);
+          }
+        } catch (err) {
+          console.log(err);
+          setError(`${err}`);
         }
       }
     })();
@@ -115,7 +126,17 @@ const Uuid: FC<Props> = (props) => {
   return (
     <>
       <Global styles={globalStyles} />
-      {data ? (
+      {error ? (
+        <Box pt={20}>
+          <VStack>
+            <Text color="tomato">Oops… Sorry, the trace couldn't be loaded</Text>
+            <Text color="tomato">{error}</Text>
+            <Text pt={10}>
+              <Link href="/">Return to homepage</Link>
+            </Text>
+          </VStack>
+        </Box>
+      ) : data ? (
         <FlightMap data={data} />
       ) : (
         <Flex position="absolute" inset="0px" alignItems="center" justifyContent="center">
