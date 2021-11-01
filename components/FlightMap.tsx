@@ -199,7 +199,7 @@ const FlightMap: FC<Props> = ({ data }) => {
           // bearing: 0,
           // bearing: ((currentTime.getTime() / 50000) % 360) - 180,
           bearing: cinematicEffects ? Math.sin(currentTime.getTime() / 2000000) * 180 : 0,
-          zoom: 12.5 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) / 2 : 0),
+          zoom: 12 + (cinematicEffects ? Math.sin(currentTime.getTime() / 1000000) / 2 : 0),
         });
       }
     }
