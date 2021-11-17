@@ -8,6 +8,14 @@
     "source": "https://www.xcontest.org/2020/world/en/flights/detail:peterbraden/31.07.2020/11:32"
   },
   {
+    "id": "8e87d6d2-6c72-40ab-bb6a-f077edc017ae",
+    "pilot": "Leone Antonio Pascale",
+    "location": "Dicki Danda, Nepal",
+    "date": "2019-03-16",
+    "igcUrl": "https://storage.googleapis.com/flight-replay/2019-03-16-XCT-LPA-01.igc",
+    "source": "https://www.xcontest.org/2019/world/en/flights/detail:leone/16.3.2019/04:35"
+  },
+  {
     "id": "f646b181-8128-4148-be97-094298a5aa4c",
     "pilot": "Oleg Ryjkov",
     "location": "Bernese Alps, Switzerland",
@@ -62,14 +70,6 @@
     "date": "2021-10-23",
     "igcUrl": "https://storage.googleapis.com/flight-replay/2021-10-23-XCT-XXX-03.igc",
     "source": "https://www.xcontest.org/world/en/flights/detail:yasuhana/23.10.2021/02:43"
-  },
-  {
-    "id": "8e87d6d2-6c72-40ab-bb6a-f077edc017ae",
-    "pilot": "Leone Antonio Pascale",
-    "location": "Dicki Danda, Nepal",
-    "date": "2019-03-16",
-    "igcUrl": "https://storage.googleapis.com/flight-replay/2019-03-16-XCT-LPA-01.igc",
-    "source": "https://www.xcontest.org/2019/world/en/flights/detail:leone/16.3.2019/04:35"
   },
   {
     "id": "68d27327-f19d-4cb7-a49f-5667705c8bf1",
