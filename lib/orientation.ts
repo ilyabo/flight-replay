@@ -1,14 +1,17 @@
 import { EnrichedMovementTrace, MovementTrace, TrajPoint } from '../types';
 import { bisect, bisectLeft, bisectRight } from 'd3-array';
 import { interpolateArray } from 'd3-interpolate';
+import { lngLatToWorld } from '@math.gl/web-mercator';
 
-const angleX = 90;
+const angleX = 0;
 const angleY = 0;
 const angleZ = 90;
 
 export function getYaw(prevPoint: [number, number, number], nextPoint: [number, number, number]) {
-  const dx = nextPoint[0] - prevPoint[0];
-  const dy = nextPoint[1] - prevPoint[1];
+  const p1 = lngLatToWorld(prevPoint);
+  const p2 = lngLatToWorld(nextPoint);
+  const dx = p2[0] - p1[0];
+  const dy = p2[1] - p1[1];
   // if (dx < 1e-10 || dy < 1e-10) return NaN;
   return radiansToDegrees(Math.atan2(dy, dx));
 }
@@ -22,7 +25,7 @@ export function getPitch(prevPoint: [number, number, number], nextPoint: [number
   const dx = nextPoint[0] - prevPoint[0];
   const dy = nextPoint[1] - prevPoint[1];
   const dz = nextPoint[2] - prevPoint[2];
-  return radiansToDegrees(Math.atan2(Math.sqrt(dz * dz + dx * dx), dy) + Math.PI);
+  return radiansToDegrees(Math.atan2(Math.sqrt(dz * dz + dx * dx), dy) - Math.PI / 2);
 }
 
 export function radiansToDegrees(x: number) {
@@ -109,20 +112,35 @@ export function getOrientationGetter(currentTime: Date, runningAverageSteps = 10
     // return [angleX + pitch, angleY + yaw, angleZ];
     // console.log(path[idx].map((x, i) => path[idx - 1][i] - x));
 
-    const timeOff = getTimeOffset(currentTime, timestamps, idx);
-    const angles = interpolateArray(
-      [
-        angleX + runningAverageDiffs(path, idx - 1, getPitch, runningAverageSteps),
-        angleY + runningAverageDiffs(path, idx - 1, getYaw, runningAverageSteps),
-        angleZ,
-      ],
-      [
-        angleX + runningAverageDiffs(path, idx, getPitch, runningAverageSteps),
-        angleY + runningAverageDiffs(path, idx, getYaw, runningAverageSteps),
-        angleZ,
-      ]
-    )(timeOff);
-    return angles;
+    const advancement = getTimeOffset(currentTime, timestamps, idx);
+    // const angles = interpolateArray(
+    //   [
+    //     angleX + runningAverageDiffs(path, idx - 1, getPitch, runningAverageSteps),
+    //     angleY + runningAverageDiffs(path, idx - 1, getYaw, runningAverageSteps),
+    //     angleZ,
+    //   ],
+    //   [
+    //     angleX + runningAverageDiffs(path, idx, getPitch, runningAverageSteps),
+    //     angleY + runningAverageDiffs(path, idx, getYaw, runningAverageSteps),
+    //     angleZ,
+    //   ]
+    // )(advancement);
+    // return angles;
+
+    let yaw = 0,
+      pitch = 0;
+    if (idx > 1) {
+      yaw = interpolateAngle(
+        getYaw(path[idx - 2], path[idx - 1]),
+        getYaw(path[idx - 1], path[idx]),
+        advancement
+      );
+    } else if (idx > 0) {
+      yaw = getYaw(path[idx - 1], path[idx]);
+    }
+    // pitch = getPitch(path[idx - 1], path[idx]);
+
+    return [angleX, angleY + yaw, angleZ + pitch];
   };
 }
 
@@ -159,4 +177,10 @@ export function getIndexFromTimeGetter({ timestamps }: EnrichedMovementTrace, cu
     return -1;
   }
   return idx;
+}
+
+function interpolateAngle(a: number, b: number, advancement: number) {
+  if (a - b > 180) b += 360;
+  else if (b - a > 180) a += 360; // shortest path
+  return a + (b - a) * advancement;
 }
