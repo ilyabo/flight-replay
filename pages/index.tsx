@@ -21,7 +21,9 @@ const Home: NextPage = () => {
             Flight Replay
           </Heading>
           <Box>
-            Demo app developed by <Link href="https://ilya.boyandin.me/">Ilya Boyandin</Link>
+            Demo app developed by <Link href="https://ilya.boyandin.me/">Ilya Boyandin</Link> using{' '}
+            <Link href="https://deck.gl/">Deck.gl</Link> and{' '}
+            <Link href="https://docs.mapbox.com/mapbox-gl-js/">Mapbox GL JS</Link>.
           </Box>
           <Box position="relative" maxWidth="100%" h={[200, 300, 400]} w={[300, 400, 500]}>
             <Image
