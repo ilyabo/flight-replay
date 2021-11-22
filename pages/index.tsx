@@ -20,6 +20,9 @@ const Home: NextPage = () => {
           <Heading size="lg" textTransform="uppercase">
             Flight Replay
           </Heading>
+          <Box>
+            Demo app developed by <Link href="https://ilya.boyandin.me/">Ilya Boyandin</Link>
+          </Box>
           <Box position="relative" maxWidth="100%" h={[200, 300, 400]} w={[300, 400, 500]}>
             <Image
               src={screenshot}
