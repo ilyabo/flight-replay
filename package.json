@@ -44,5 +44,8 @@
   },
   "resolutions": {
     "mapbox-gl": "ilyabo/mapbox-gl-js"
+  },
+  "volta": {
+    "node": "16.19.1"
   }
 }
