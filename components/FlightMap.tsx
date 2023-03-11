@@ -15,14 +15,7 @@ import { useRouter } from 'next/router';
 import DeckGL from '@deck.gl/react';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
-import {
-  FirstPersonView,
-  AmbientLight,
-  DirectionalLight,
-  LightingEffect,
-  MapView,
-  PointLight,
-} from '@deck.gl/core';
+import { AmbientLight, DirectionalLight, LightingEffect, MapView, PointLight } from '@deck.gl/core';
 import { EnrichedMovementTrace, MovementTrace } from '../types';
 import { FaCog, FaPause, FaPlay } from 'react-icons/fa';
 import {
@@ -90,19 +83,6 @@ const lightingEffect = new LightingEffect({
   directionalLight,
 });
 
-const VIEWS =
-  // new MapView({
-  //   controller: { doubleClickZoom: false, inertia: true, keyboard: false },
-  // })
-
-  new FirstPersonView({
-    controller: true,
-    focalDistance: 100,
-    // fovy: 80,
-    // near: 0.1,
-    // far: 1000,
-  });
-
 // export const MIN_ZOOM = 0;
 // export const MAX_ZOOM = 18;
 
@@ -112,30 +92,17 @@ const ANIMATION_SPEEDS = [
 const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 const MAPBOX_STYLE = process.env.NEXT_PUBLIC_MAPBOX_STYLE;
 const INITIAL_VIEWPORT: any = {
-  latitude: 46.55529900866382,
-  longitude: 7.838572814324716,
-
-  // longitude: 0,
-  // latitude: 0,
-  position: [0, 0, 43.5],
-  bearing: 0,
+  // latitude: 46.55529900866382,
+  // longitude: 7.838572814324716,
+  // zoom: 11.082359799464955,
+  bearing: 90,
   pitch: 0,
-  maxPitch: 89,
-  minPitch: -89,
+  altitude: 1.5,
+  maxZoom: 20,
+  minZoom: 0,
+  maxPitch: 80,
+  minPitch: 0,
 };
-
-// {
-//   // latitude: 46.55529900866382,
-//   // longitude: 7.838572814324716,
-//   // zoom: 11.082359799464955,
-//   bearing: 90,
-//   pitch: 0,
-//   altitude: 1.5,
-//   maxZoom: 20,
-//   minZoom: 0,
-//   maxPitch: 80,
-//   minPitch: 0,
-// };
 
 const FlightMap: FC<Props> = ({ data }) => {
   const { map } = React.useContext(MapContext);
@@ -157,7 +124,7 @@ const FlightMap: FC<Props> = ({ data }) => {
       .range([0, 100]);
   }, [data]);
   const [currentTime, setCurrentTime] = useState(timeScale.domain()[0]);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
 
   // Use useRef for mutable variables that we want to persist
   // without triggering a re-render on their change
@@ -404,18 +371,22 @@ const FlightMap: FC<Props> = ({ data }) => {
     <>
       <Box>
         <DeckGL
-          views={VIEWS}
           effects={[lightingEffect]}
           // initialViewState={INITIAL_VIEWPORT}
           // controller={true}
+          views={
+            new MapView({
+              controller: { doubleClickZoom: false, inertia: true, keyboard: false },
+            })
+          }
           layers={layers}
           viewState={viewport}
           onViewStateChange={({ viewState }: any) => setViewport(viewState)}
         >
-          {/* <StaticMap
+          <StaticMap
             mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
             mapStyle={satelliteImagery ? MAPBOX_STYLE : undefined}
-          /> */}
+          />
           {/*<ScaleControl maxWidth={100} unit="metric" style={scaleControlStyle} />*/}
         </DeckGL>
       </Box>
