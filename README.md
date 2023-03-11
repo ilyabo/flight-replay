@@ -1,5 +1,7 @@
 # Flight replay
 
+Replay GPS paraglider flight data showing detailed 3D terrain and flight trails
+
 ![Flight replay](public/screenshot-sm.jpg)
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
