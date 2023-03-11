@@ -8,6 +8,12 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Development
 
+Rename file `.env.example` into `.env.local` and populate the values with a [Mapbox access token](https://docs.mapbox.com/help/getting-started/access-tokens/) and style.
+
+```
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=...
+NEXT_PUBLIC_MAPBOX_STYLE=...
+```
 
 ```bash
 yarn install
@@ -21,3 +27,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Flight Reply source code is free non-commercial usage. If you want to use it in a commercial project, please <a href="mailto:ilya@boyandin.me?subject=FlightReply">reach out to us</a>.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
+
+```
+
+```
